@@ -2,6 +2,15 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ADMIN_PASSCODE } from '../config'
 
+function AdminIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  )
+}
+
 export default function AdminPasscode() {
   const [passcode, setPasscode] = useState('')
   const [error, setError] = useState('')
@@ -17,23 +26,26 @@ export default function AdminPasscode() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', padding: '2rem', background: '#f0f2f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="card" style={{ maxWidth: 400, width: '100%' }}>
-        <Link to="/" style={{ display: 'inline-block', marginBottom: '1rem', fontSize: '0.9rem' }}>← Home</Link>
-        <h2 style={{ margin: '0 0 0.5rem' }}>Admin Portal</h2>
-        <p style={{ color: 'var(--muted)', marginBottom: '1.5rem' }}>Enter the admin passcode to continue</p>
+    <div className="portal-page">
+      <div className="portal-card">
+        <Link to="/" className="portal-breadcrumb">← Back to Home</Link>
+        <div className="portal-icon-wrap admin">
+          <AdminIcon />
+        </div>
+        <h1 className="portal-title">Admin Portal</h1>
+        <p className="portal-subtitle">Enter the admin passcode to access the full dashboard and manage all tickets.</p>
         <form onSubmit={handleSubmit}>
           <label className="label" htmlFor="passcode">Passcode</label>
           <input
             id="passcode"
             type="password"
-            placeholder="Passcode"
+            placeholder={`Enter Passcode: ${ADMIN_PASSCODE}`}
             value={passcode}
             onChange={(e) => { setPasscode(e.target.value); setError('') }}
             autoFocus
           />
-          {error && <p style={{ color: 'var(--danger)', fontSize: '0.875rem', marginTop: '0.5rem' }}>{error}</p>}
-          <button type="submit" className="primary" style={{ marginTop: '1rem', width: '100%' }}>Enter</button>
+          {error && <p className="portal-error">{error}</p>}
+          <button type="submit" className="primary">Enter</button>
         </form>
       </div>
     </div>

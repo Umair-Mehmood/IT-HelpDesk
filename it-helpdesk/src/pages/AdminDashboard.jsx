@@ -72,11 +72,16 @@ export default function AdminDashboard() {
     return true
   })
 
-  // Agent workload: count open + in progress per agent, avg resolution time
+  // Agent workload: active, resolved, breached count, breached %, avg resolution (only active tickets count toward breach %)
   const agentStats = (agents || []).map((a) => {
-    const myTickets = tickets.filter((t) => (t.agentId || '') === (a.agentId || ''))
+    const myTickets = tickets.filter((t) => (t.agentId || '').toUpperCase() === (a.agentId || '').toUpperCase())
     const active = myTickets.filter((t) => t.status === 'Open' || t.status === 'In Progress').length
+    const activeTickets = myTickets.filter((t) => t.status === 'Open' || t.status === 'In Progress')
     const resolved = myTickets.filter((t) => t.status === 'Resolved' && t.resolvedAt)
+    const matchTicket = (b, t) => (b.id != null && t.id != null && String(b.id) === String(t.id)) || (b.ticketId && t.ticketId && b.ticketId === t.ticketId)
+    const myBreached = activeTickets.filter((t) => breached.some((b) => matchTicket(b, t)))
+    const breachedCount = myBreached.length
+    const breachedPct = active > 0 ? Math.round((breachedCount / active) * 100) : 0
     let avgHours = null
     if (resolved.length > 0) {
       const totalMs = resolved.reduce((sum, t) => {
@@ -87,7 +92,7 @@ export default function AdminDashboard() {
       }, 0)
       avgHours = (totalMs / resolved.length) / (60 * 60 * 1000)
     }
-    return { ...a, active, resolvedCount: resolved.length, avgHours }
+    return { ...a, active, resolvedCount: resolved.length, breachedCount, breachedPct, avgHours }
   })
 
   function startEdit(t) {
@@ -174,6 +179,14 @@ export default function AdminDashboard() {
             <option value="">All agents</option>
             {(agents || []).map((a) => <option key={a.agentId} value={a.agentId}>{a.name}</option>)}
           </select>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => { setFilterStatus(''); setFilterPriority(''); setFilterAgent(''); }}
+            style={{ marginLeft: '0.25rem' }}
+          >
+            Reset filters
+          </button>
         </div>
 
         {/* Ticket table */}
@@ -245,18 +258,22 @@ export default function AdminDashboard() {
 
         {/* Agent workload */}
         <h2 style={{ marginBottom: '0.75rem' }}>Agent workload</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
           {agentStats.map((a) => (
-            <div key={a.agentId} className="card">
-              <strong>{a.name}</strong>
-              <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>{a.specialization}</div>
-              <div style={{ marginTop: '0.5rem' }}>
-                Active tickets: <strong>{a.active}</strong>
-                {a.resolvedCount > 0 && (
-                  <span style={{ marginLeft: '0.75rem' }}>
-                    Avg resolution: <strong>{a.avgHours != null ? `${a.avgHours.toFixed(1)}h` : '—'}</strong>
-                  </span>
-                )}
+            <div key={a.agentId} className="card" style={{ padding: '1rem' }}>
+              <strong style={{ display: 'block', marginBottom: '0.25rem' }}>{a.name}</strong>
+              <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '0.75rem' }}>{a.specialization || '—'}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 0.75rem', fontSize: '0.875rem' }}>
+                <span style={{ color: 'var(--muted)' }}>Active</span>
+                <strong style={{ textAlign: 'right' }}>{a.active}</strong>
+                <span style={{ color: 'var(--muted)' }}>Resolved</span>
+                <strong style={{ textAlign: 'right' }}>{a.resolvedCount}</strong>
+                <span style={{ color: 'var(--muted)' }}>SLA Breached</span>
+                <strong style={{ textAlign: 'right', color: a.breachedCount > 0 ? 'var(--danger)' : 'inherit' }}>{a.breachedCount}</strong>
+                <span style={{ color: 'var(--muted)' }}>SLA Breached %</span>
+                <strong style={{ textAlign: 'right', color: a.breachedPct > 0 ? 'var(--danger)' : 'inherit' }}>{a.breachedPct}%</strong>
+                <span style={{ color: 'var(--muted)' }}>Avg resolution</span>
+                <strong style={{ textAlign: 'right' }}>{a.avgHours != null ? `${a.avgHours.toFixed(1)}h` : '—'}</strong>
               </div>
             </div>
           ))}

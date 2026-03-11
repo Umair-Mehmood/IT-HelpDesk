@@ -1,7 +1,15 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { getAgents } from '../api/sheetNinja'
-import { Link } from 'react-router-dom'
+
+function AgentIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+      <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+    </svg>
+  )
+}
 
 export default function AgentEnterId() {
   const [id, setId] = useState('')
@@ -34,11 +42,14 @@ export default function AgentEnterId() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', padding: '2rem', background: '#f0f2f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="card" style={{ maxWidth: 400, width: '100%' }}>
-        <Link to="/" style={{ display: 'inline-block', marginBottom: '1rem', fontSize: '0.9rem' }}>← Home</Link>
-        <h2 style={{ margin: '0 0 0.5rem' }}>Agent Portal</h2>
-        <p style={{ color: 'var(--muted)', marginBottom: '1.5rem' }}>Enter your Agent ID to manage your tickets</p>
+    <div className="portal-page">
+      <div className="portal-card">
+        <Link to="/" className="portal-breadcrumb">← Back to Home</Link>
+        <div className="portal-icon-wrap agent">
+          <AgentIcon />
+        </div>
+        <h1 className="portal-title">Agent Portal</h1>
+        <p className="portal-subtitle">Enter your Agent ID to access your assigned tickets and update their status.</p>
         <form onSubmit={handleSubmit}>
           <label className="label" htmlFor="agent-id">Agent ID</label>
           <input
@@ -50,8 +61,8 @@ export default function AgentEnterId() {
             autoFocus
             disabled={loading}
           />
-          {error && <p style={{ color: 'var(--danger)', fontSize: '0.875rem', marginTop: '0.5rem' }}>{error}</p>}
-          <button type="submit" className="primary" style={{ marginTop: '1rem', width: '100%' }} disabled={loading}>
+          {error && <p className="portal-error">{error}</p>}
+          <button type="submit" className="primary" disabled={loading}>
             {loading ? 'Loading…' : 'Continue'}
           </button>
         </form>

@@ -10,7 +10,7 @@ export default function HomePage() {
   return (
     <div style={{ minHeight: '100vh', padding: '2rem', background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' }}>
       <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
-        <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '0.5rem' }}>IT Helpdesk Tracker</h1>
+        <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '0.5rem' }}>IT Help Desk Ticket Management System</h1>
         <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '2.5rem' }}>Choose your portal to continue</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {portals.map((p) => (

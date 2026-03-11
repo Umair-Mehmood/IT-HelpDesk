@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" aria-hidden="true">
+  <defs>
+    <linearGradient id="hd-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <!-- Ticket shape -->
+  <rect x="4" y="8" width="32" height="24" rx="3" fill="url(#hd-grad)"/>
+  <path d="M20 8 v24 M 4 14 h32 M 4 18 h32" stroke="#fff" stroke-width="1.2" stroke-opacity="0.9" fill="none"/>
+  <!-- Cutout circles on ticket -->
+  <circle cx="20" cy="8" r="2" fill="#1e3a8a"/>
+  <circle cx="20" cy="32" r="2" fill="#1e3a8a"/>
+  <!-- Check / support mark in center -->
+  <path d="M14 20 L18 24 L26 16" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

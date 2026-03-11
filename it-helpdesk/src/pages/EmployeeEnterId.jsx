@@ -1,7 +1,15 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { getEmployees, getTickets } from '../api/sheetNinja'
-import { Link } from 'react-router-dom'
+
+function EmployeeIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  )
+}
 
 export default function EmployeeEnterId() {
   const [id, setId] = useState('')
@@ -36,24 +44,27 @@ export default function EmployeeEnterId() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', padding: '2rem', background: '#f0f2f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="card" style={{ maxWidth: 400, width: '100%' }}>
-        <Link to="/" style={{ display: 'inline-block', marginBottom: '1rem', fontSize: '0.9rem' }}>← Home</Link>
-        <h2 style={{ margin: '0 0 0.5rem' }}>Employee Portal</h2>
-        <p style={{ color: 'var(--muted)', marginBottom: '1.5rem' }}>Enter your Employee ID to view your tickets</p>
+    <div className="portal-page">
+      <div className="portal-card">
+        <Link to="/" className="portal-breadcrumb">← Back to Home</Link>
+        <div className="portal-icon-wrap employee">
+          <EmployeeIcon />
+        </div>
+        <h1 className="portal-title">Employee Portal</h1>
+        <p className="portal-subtitle">Enter your Employee ID to view your tickets and submit new requests.</p>
         <form onSubmit={handleSubmit}>
           <label className="label" htmlFor="emp-id">Employee ID</label>
           <input
             id="emp-id"
             type="text"
-            placeholder="e.g. EMP-001"
+            placeholder="e.g. ID EMP-002"
             value={id}
             onChange={(e) => setId(e.target.value)}
             autoFocus
             disabled={loading}
           />
-          {error && <p style={{ color: 'var(--danger)', fontSize: '0.875rem', marginTop: '0.5rem' }}>{error}</p>}
-          <button type="submit" className="primary" style={{ marginTop: '1rem', width: '100%' }} disabled={loading}>
+          {error && <p className="portal-error">{error}</p>}
+          <button type="submit" className="primary" disabled={loading}>
             {loading ? 'Loading…' : 'Continue'}
           </button>
         </form>
