@@ -95,7 +95,7 @@ async function main() {
   await conn.execute('DELETE FROM sla_rules')
   console.log('Cleared existing rows')
 
-  await conn.execute(
+  await conn.query(
     'INSERT INTO employees (employeeId, name) VALUES ?',
     [[
       ['EMP-001', 'Sarah Chen'],
@@ -109,7 +109,7 @@ async function main() {
     ]]
   )
 
-  await conn.execute(
+  await conn.query(
     'INSERT INTO agents (agentId, name, specialization) VALUES ?',
     [[
       ['AGT-001', 'Mike Torres', 'Hardware'],
@@ -119,7 +119,7 @@ async function main() {
     ]]
   )
 
-  await conn.execute(
+  await conn.query(
     'INSERT INTO sla_rules (priority, resolutionHours) VALUES ?',
     [[
       ['Low', 72],
@@ -150,7 +150,7 @@ async function main() {
     ['TKT-018', 'EMP-003', 'Priya Patel', 'Cannot connect to database VPN', 'Need access to staging DB via VPN for QA testing.', 'Access', 'High', 'Open', 'AGT-004', 'Rachel Green', excelSerial(2, 1), excelSerial(2, 1), null, '', ''],
   ]
 
-  await conn.execute(
+  await conn.query(
     `INSERT INTO tickets (
       ticketId, employeeId, employeeName, title, description, category, priority, status,
       agentId, agentName, createdAt, updatedAt, resolvedAt, resolutionNote, internalNote
