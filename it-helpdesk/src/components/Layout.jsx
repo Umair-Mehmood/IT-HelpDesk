@@ -78,9 +78,9 @@ export default function Layout() {
             ))}
           </nav>
           <div className="platform-social-wrap">
-            <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="platform-social-link" aria-label="LinkedIn @umairbuildsai">
+            <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="platform-social-link" aria-label="LinkedIn profile of Umair Mehmood">
               <LinkedInIcon />
-              <span>@umairbuildsai</span>
+              <span>Umair Mehmood</span>
             </a>
             <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="platform-social-link" aria-label="Instagram @umairbuildsai">
               <InstagramIcon />
@@ -96,9 +96,9 @@ export default function Layout() {
         <div className="platform-footer-inner">
           <span>Developed by Umair Mehmood</span>
           <span className="platform-footer-sep">·</span>
-          <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="platform-social-link platform-social-link--footer" aria-label="LinkedIn @umairbuildsai">
+          <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="platform-social-link platform-social-link--footer" aria-label="LinkedIn profile of Umair Mehmood">
             <LinkedInIcon />
-            <span>@umairbuildsai</span>
+            <span>Umair Mehmood</span>
           </a>
           <span className="platform-footer-sep">·</span>
           <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="platform-social-link platform-social-link--footer" aria-label="Instagram @umairbuildsai">
