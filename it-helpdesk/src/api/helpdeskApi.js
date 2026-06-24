@@ -110,3 +110,25 @@ export async function updateTicket(rowId, updates) {
   const json = await res.json()
   return json.data ?? json
 }
+
+export async function getTicketComments(ticketRowId) {
+  const res = await fetch(`${ENDPOINTS.tickets}/${ticketRowId}/comments`)
+  if (!res.ok) throw new Error(`API error: ${res.status}`)
+  const json = await res.json()
+  if (json.error) throw new Error(json.error)
+  return json.data ?? json
+}
+
+export async function postTicketComment(ticketRowId, payload) {
+  const res = await fetch(`${ENDPOINTS.tickets}/${ticketRowId}/comments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}))
+    throw new Error(json.error || `Post comment failed: ${res.status}`)
+  }
+  const json = await res.json()
+  return json.data ?? json
+}

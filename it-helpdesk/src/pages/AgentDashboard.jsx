@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { getTickets, getAgents, updateTicket } from '../api/helpdeskApi'
 import { formatDate, nowExcelSerial } from '../utils/dateUtils'
 import { STATUSES, PRIORITIES } from '../config'
+import TicketChat from '../components/TicketChat'
 
 export default function AgentDashboard() {
   const { state } = useLocation()
@@ -135,6 +136,13 @@ export default function AgentDashboard() {
                 </p>
                 {t.resolutionNote && <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}><strong>Resolution:</strong> {t.resolutionNote}</p>}
                 {t.internalNote && <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.25rem' }}><em>Internal:</em> {t.internalNote}</p>}
+
+                <TicketChat
+                  ticket={t}
+                  authorType="agent"
+                  authorId={agent.agentId}
+                  authorName={agent.name}
+                />
 
                 {editingId === t.id ? (
                   <form onSubmit={handleSave} style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>

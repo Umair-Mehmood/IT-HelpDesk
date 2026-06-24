@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { getTickets, getAgents, createTicket } from '../api/helpdeskApi'
 import { formatDate } from '../utils/dateUtils'
 import { CATEGORIES, PRIORITIES } from '../config'
+import TicketChat from '../components/TicketChat'
 
 export default function EmployeeDashboard() {
   const { state } = useLocation()
@@ -152,6 +153,12 @@ export default function EmployeeDashboard() {
                   Created {formatDate(t.createdAt)}
                   {t.resolvedAt && ` · Resolved ${formatDate(t.resolvedAt)}`}
                 </p>
+                <TicketChat
+                  ticket={t}
+                  authorType="employee"
+                  authorId={employeeId}
+                  authorName={employeeName || employeeId}
+                />
               </div>
             ))}
           </div>

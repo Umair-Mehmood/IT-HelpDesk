@@ -78,6 +78,18 @@ CREATE TABLE IF NOT EXISTS tickets (
   INDEX idx_tickets_agent (agentId),
   INDEX idx_tickets_employee (employeeId)
 );
+
+CREATE TABLE IF NOT EXISTS ticket_comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  ticketRowId INT NOT NULL,
+  ticketId VARCHAR(32) NOT NULL,
+  authorType ENUM('employee', 'agent') NOT NULL,
+  authorId VARCHAR(32) NOT NULL,
+  authorName VARCHAR(120) NOT NULL,
+  message TEXT NOT NULL,
+  createdAt DOUBLE NOT NULL,
+  INDEX idx_comments_ticket (ticketRowId)
+);
 `
 
 async function main() {

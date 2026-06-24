@@ -2,6 +2,7 @@
 -- Import this file in Hostinger hPanel → phpMyAdmin → IT_Helpdesk → Import
 
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS ticket_comments;
 DROP TABLE IF EXISTS tickets;
 DROP TABLE IF EXISTS employees;
 DROP TABLE IF EXISTS agents;
@@ -47,6 +48,18 @@ CREATE TABLE tickets (
   INDEX idx_tickets_status (status),
   INDEX idx_tickets_agent (agentId),
   INDEX idx_tickets_employee (employeeId)
+);
+
+CREATE TABLE ticket_comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  ticketRowId INT NOT NULL,
+  ticketId VARCHAR(32) NOT NULL,
+  authorType ENUM('employee', 'agent') NOT NULL,
+  authorId VARCHAR(32) NOT NULL,
+  authorName VARCHAR(120) NOT NULL,
+  message TEXT NOT NULL,
+  createdAt DOUBLE NOT NULL,
+  INDEX idx_comments_ticket (ticketRowId)
 );
 
 INSERT INTO employees (employeeId, name) VALUES
