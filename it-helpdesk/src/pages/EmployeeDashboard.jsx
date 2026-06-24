@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useLocation, useNavigate, useOutletContext } from 'react-router-dom'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getTickets, getAgents, createTicket } from '../api/helpdeskApi'
 import { formatDate } from '../utils/dateUtils'
 import { CATEGORIES, PRIORITIES } from '../config'
@@ -8,20 +8,29 @@ import { saveEmployeeSession, loadEmployeeSession } from '../utils/sessionStorag
 import { StatusBadge, EmptyState, TableSkeleton, FilterChip } from '../components/ui/Primitives'
 import TicketDrawer from '../components/saas/TicketDrawer'
 
+function readEmployeeSession(locationState) {
+  const saved = loadEmployeeSession() || {}
+  const merged = { ...saved, ...(locationState || {}) }
+  const employee = merged.employee
+  return {
+    employeeId: (merged.employeeId || employee?.employeeId || '').trim(),
+    employeeName: (merged.employeeName || employee?.name || '').trim(),
+    merged,
+  }
+}
+
 export default function EmployeeDashboard() {
-  const { state } = useLocation()
+  const { state: locationState } = useLocation()
   const navigate = useNavigate()
   const { toast } = useToast()
-  const outlet = useOutletContext() || {}
-  const saved = loadEmployeeSession()
-  const merged = { ...saved, ...state }
-  const employee = merged?.employee
-  const employeeId = (merged?.employeeId || employee?.employeeId || '').trim()
-  const employeeName = (merged?.employeeName || employee?.name || '').trim()
+
+  const session = useMemo(() => readEmployeeSession(locationState), [locationState])
+  const { employeeId, employeeName } = session
 
   const [tickets, setTickets] = useState([])
   const [agents, setAgents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [authChecked, setAuthChecked] = useState(false)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ title: '', description: '', category: 'Software', priority: 'Medium' })
@@ -32,18 +41,25 @@ export default function EmployeeDashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
-    if (!employeeId) {
+    const current = readEmployeeSession(locationState)
+    if (!current.employeeId) {
       navigate('/employee', { replace: true })
       return
     }
-    saveEmployeeSession(merged)
+    saveEmployeeSession(current.merged)
+    setAuthChecked(true)
+  }, [locationState, navigate])
+
+  useEffect(() => {
+    if (!employeeId || !authChecked) return
     let cancelled = false
     async function load() {
+      setLoading(true)
       try {
         const [t, a] = await Promise.all([getTickets(), getAgents()])
         if (cancelled) return
-        setTickets(t || [])
-        setAgents(a || [])
+        setTickets(Array.isArray(t) ? t : [])
+        setAgents(Array.isArray(a) ? a : [])
         setError('')
       } catch (err) {
         if (!cancelled) setError(err.message || 'Failed to load data')
@@ -53,10 +69,10 @@ export default function EmployeeDashboard() {
     }
     load()
     return () => { cancelled = true }
-  }, [employeeId, navigate])
+  }, [employeeId, authChecked])
 
   const myTickets = useMemo(() =>
-    (tickets || [])
+    tickets
       .filter((t) => (t.employeeId || '').toUpperCase() === employeeId.toUpperCase())
       .filter((t) => !filterStatus || t.status === filterStatus)
       .filter((t) => !search || `${t.ticketId} ${t.title} ${t.category}`.toLowerCase().includes(search.toLowerCase()))
@@ -64,21 +80,10 @@ export default function EmployeeDashboard() {
     [tickets, employeeId, filterStatus, search]
   )
 
-  function openTicket(t) {
+  const openTicket = useCallback((t) => {
     setSelectedTicket(t)
     setDrawerOpen(true)
-  }
-
-  useEffect(() => {
-    if (!outlet.setSearchItems) return
-    outlet.setSearchItems(myTickets.map((t) => ({
-      id: t.id,
-      label: `${t.ticketId} — ${t.title}`,
-      meta: t.status,
-      ticket: t,
-    })))
-    outlet.setOnSearchSelect((item) => openTicket(item.ticket))
-  }, [myTickets, outlet.setSearchItems, outlet.setOnSearchSelect])
+  }, [])
 
   async function handleSubmitTicket(e) {
     e.preventDefault()
@@ -86,12 +91,19 @@ export default function EmployeeDashboard() {
     setSubmitting(true)
     try {
       const created = await createTicket(
-        { employeeId, employeeName: employeeName || employeeId, title: form.title.trim(), description: (form.description || '').trim(), category: form.category, priority: form.priority },
+        {
+          employeeId,
+          employeeName: employeeName || employeeId,
+          title: form.title.trim(),
+          description: (form.description || '').trim(),
+          category: form.category,
+          priority: form.priority,
+        },
         tickets,
         agents
       )
-      const [t] = await Promise.all([getTickets()])
-      setTickets(t || [])
+      const t = await getTickets()
+      setTickets(Array.isArray(t) ? t : [])
       setForm({ title: '', description: '', category: 'Software', priority: 'Medium' })
       setShowForm(false)
       toast(`Ticket ${created?.ticketId || ''} created`)
@@ -103,7 +115,9 @@ export default function EmployeeDashboard() {
     }
   }
 
-  if (!employeeId) return null
+  if (!authChecked || !employeeId) {
+    return <TableSkeleton rows={4} cols={6} />
+  }
 
   return (
     <div>
@@ -127,7 +141,7 @@ export default function EmployeeDashboard() {
           onChange={(e) => setSearch(e.target.value)}
         />
         <div className="filter-bar">
-          {['', ...['Open', 'In Progress', 'Resolved']].map((s) => (
+          {['', 'Open', 'In Progress', 'Resolved'].map((s) => (
             <FilterChip
               key={s || 'all'}
               label={s || 'All statuses'}
@@ -193,7 +207,7 @@ export default function EmployeeDashboard() {
             </thead>
             <tbody>
               {myTickets.map((t) => (
-                <tr key={t.id} onClick={() => openTicket(t)}>
+                <tr key={t.id ?? t.ticketId} onClick={() => openTicket(t)}>
                   <td><strong>{t.ticketId}</strong></td>
                   <td>{t.title}</td>
                   <td>{t.category}</td>

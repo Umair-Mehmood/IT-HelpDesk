@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { loadEmployeeSession, loadAgentSession } from '../../utils/sessionStorage'
 
@@ -77,13 +77,13 @@ function CommandPalette({ open, onClose, items, onSelect }) {
     function onKey(e) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
-        onClose(open ? false : true)
+        onClose('toggle')
       }
       if (e.key === 'Escape') onClose(false)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [open, onClose])
+  }, [onClose])
 
   if (!open) return null
 
@@ -128,10 +128,14 @@ export default function AppShell() {
   const role = session.role
   const user = session.user
   const breadcrumbs = session.breadcrumbs
-  const [searchItems, setSearchItems] = useState([])
-  const [onSearchSelect, setOnSearchSelect] = useState(() => () => {})
+  const [searchItems] = useState([])
+  const onSearchSelect = useCallback(() => {}, [])
   const [collapsed, setCollapsed] = useState(false)
   const [cmdOpen, setCmdOpen] = useState(false)
+  const handleCmdClose = useCallback((value) => {
+    if (value === 'toggle') setCmdOpen((open) => !open)
+    else setCmdOpen(false)
+  }, [])
   const [menuOpen, setMenuOpen] = useState(false)
   const [bannerDismissed, setBannerDismissed] = useState(false)
 
@@ -238,13 +242,13 @@ export default function AppShell() {
         </header>
 
         <main className="app-content">
-          <Outlet context={{ setSearchItems, setOnSearchSelect }} />
+          <Outlet />
         </main>
       </div>
 
       <CommandPalette
         open={cmdOpen}
-        onClose={setCmdOpen}
+        onClose={handleCmdClose}
         items={searchItems}
         onSelect={onSearchSelect}
       />
