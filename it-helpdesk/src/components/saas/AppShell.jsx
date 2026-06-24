@@ -1,6 +1,43 @@
 import { useEffect, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { usePlatform } from '../../context/PlatformContext'
+import { loadEmployeeSession, loadAgentSession } from '../../utils/sessionStorage'
+
+function resolveSession(location) {
+  const { pathname, state } = location
+  const saved = pathname.startsWith('/employee')
+    ? loadEmployeeSession()
+    : pathname.startsWith('/agent')
+      ? loadAgentSession()
+      : null
+  const merged = { ...saved, ...state }
+
+  if (pathname.startsWith('/employee')) {
+    const employee = merged?.employee
+    const id = (merged?.employeeId || employee?.employeeId || '').trim()
+    const name = (merged?.employeeName || employee?.name || id).trim()
+    return {
+      role: 'employee',
+      user: id ? { name: name || id, id } : null,
+      breadcrumbs: [{ label: 'DeskFlow', to: '/' }, { label: 'My Tickets' }],
+    }
+  }
+  if (pathname.startsWith('/agent')) {
+    const agent = merged?.agent
+    return {
+      role: 'agent',
+      user: agent ? { name: agent.name, id: agent.agentId } : null,
+      breadcrumbs: [{ label: 'DeskFlow', to: '/' }, { label: 'Queue' }],
+    }
+  }
+  if (pathname.startsWith('/admin')) {
+    return {
+      role: 'admin',
+      user: { name: 'Administrator', id: 'ADMIN' },
+      breadcrumbs: [{ label: 'DeskFlow', to: '/' }, { label: 'Overview' }],
+    }
+  }
+  return { role: null, user: null, breadcrumbs: [] }
+}
 
 const NAV = {
   employee: [
@@ -87,7 +124,12 @@ function CommandPalette({ open, onClose, items, onSelect }) {
 export default function AppShell() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { role, user, breadcrumbs, searchItems, onSearchSelect } = usePlatform()
+  const session = resolveSession(location)
+  const role = session.role
+  const user = session.user
+  const breadcrumbs = session.breadcrumbs
+  const [searchItems, setSearchItems] = useState([])
+  const [onSearchSelect, setOnSearchSelect] = useState(() => () => {})
   const [collapsed, setCollapsed] = useState(false)
   const [cmdOpen, setCmdOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -196,7 +238,7 @@ export default function AppShell() {
         </header>
 
         <main className="app-content">
-          <Outlet />
+          <Outlet context={{ setSearchItems, setOnSearchSelect }} />
         </main>
       </div>
 

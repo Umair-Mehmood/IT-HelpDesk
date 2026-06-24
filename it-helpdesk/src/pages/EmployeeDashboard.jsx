@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { getTickets, getAgents, createTicket } from '../api/helpdeskApi'
 import { formatDate } from '../utils/dateUtils'
 import { CATEGORIES, PRIORITIES } from '../config'
-import { PlatformProvider } from '../context/PlatformContext'
 import { useToast } from '../context/ToastContext'
+import { saveEmployeeSession, loadEmployeeSession } from '../utils/sessionStorage'
 import { StatusBadge, EmptyState, TableSkeleton, FilterChip } from '../components/ui/Primitives'
 import TicketDrawer from '../components/saas/TicketDrawer'
 
@@ -12,10 +12,12 @@ export default function EmployeeDashboard() {
   const { state } = useLocation()
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { confirm } = useConfirm()
-  const employee = state?.employee
-  const employeeId = (state?.employeeId || employee?.employeeId || '').trim()
-  const employeeName = (state?.employeeName || employee?.name || '').trim()
+  const outlet = useOutletContext() || {}
+  const saved = loadEmployeeSession()
+  const merged = { ...saved, ...state }
+  const employee = merged?.employee
+  const employeeId = (merged?.employeeId || employee?.employeeId || '').trim()
+  const employeeName = (merged?.employeeName || employee?.name || '').trim()
 
   const [tickets, setTickets] = useState([])
   const [agents, setAgents] = useState([])
@@ -34,6 +36,7 @@ export default function EmployeeDashboard() {
       navigate('/employee', { replace: true })
       return
     }
+    saveEmployeeSession(merged)
     let cancelled = false
     async function load() {
       try {
@@ -61,12 +64,21 @@ export default function EmployeeDashboard() {
     [tickets, employeeId, filterStatus, search]
   )
 
-  const searchItems = myTickets.map((t) => ({
-    id: t.id,
-    label: `${t.ticketId} — ${t.title}`,
-    meta: t.status,
-    ticket: t,
-  }))
+  function openTicket(t) {
+    setSelectedTicket(t)
+    setDrawerOpen(true)
+  }
+
+  useEffect(() => {
+    if (!outlet.setSearchItems) return
+    outlet.setSearchItems(myTickets.map((t) => ({
+      id: t.id,
+      label: `${t.ticketId} — ${t.title}`,
+      meta: t.status,
+      ticket: t,
+    })))
+    outlet.setOnSearchSelect((item) => openTicket(item.ticket))
+  }, [myTickets, outlet.setSearchItems, outlet.setOnSearchSelect])
 
   async function handleSubmitTicket(e) {
     e.preventDefault()
@@ -91,132 +103,117 @@ export default function EmployeeDashboard() {
     }
   }
 
-  function openTicket(t) {
-    setSelectedTicket(t)
-    setDrawerOpen(true)
-  }
-
   if (!employeeId) return null
 
-  const platformValue = {
-    role: 'employee',
-    user: { name: employeeName || employeeId, id: employeeId },
-    breadcrumbs: [{ label: 'DeskFlow', to: '/' }, { label: 'My Tickets' }],
-    searchItems,
-    onSearchSelect: (item) => openTicket(item.ticket),
-  }
-
   return (
-    <PlatformProvider value={platformValue}>
-      <div>
-        <div className="page-header">
-          <div>
-            <h1>My Tickets</h1>
-            <p className="page-header__sub">{employeeName || employeeId}</p>
-          </div>
-          <div className="page-actions">
-            <button type="button" className="btn btn--primary" onClick={() => setShowForm(true)}>+ New Ticket</button>
-          </div>
+    <div>
+      <div className="page-header">
+        <div>
+          <h1>My Tickets</h1>
+          <p className="page-header__sub">{employeeName || employeeId}</p>
         </div>
-
-        {error && <div className="sla-alert">{error}</div>}
-
-        <div className="toolbar">
-          <input
-            className="toolbar__search"
-            placeholder="Search tickets…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <div className="filter-bar">
-            {['', ...['Open', 'In Progress', 'Resolved']].map((s) => (
-              <FilterChip
-                key={s || 'all'}
-                label={s || 'All statuses'}
-                active={filterStatus === s}
-                onClick={() => setFilterStatus(s)}
-                onClear={s ? () => setFilterStatus('') : undefined}
-              />
-            ))}
-          </div>
+        <div className="page-actions">
+          <button type="button" className="btn btn--primary" onClick={() => setShowForm(true)}>+ New Ticket</button>
         </div>
-
-        {showForm && (
-          <div className="surface-card" style={{ marginBottom: 24 }}>
-            <h3 style={{ marginBottom: 16 }}>New ticket</h3>
-            <form onSubmit={handleSubmitTicket}>
-              <label className="label">Title</label>
-              <input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Brief summary" required />
-              <label className="label" style={{ marginTop: 12 }}>Description</label>
-              <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Describe the issue…" rows={3} />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
-                <div>
-                  <label className="label">Category</label>
-                  <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="label">Priority</label>
-                  <select value={form.priority} onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))}>
-                    {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-                <button type="submit" className="btn btn--primary" disabled={submitting}>{submitting ? 'Submitting…' : 'Submit ticket'}</button>
-                <button type="button" className="btn btn--ghost" onClick={() => setShowForm(false)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {loading ? (
-          <TableSkeleton rows={6} cols={6} />
-        ) : myTickets.length === 0 ? (
-          <EmptyState
-            title="No tickets yet"
-            description="Create your first support request and track it through resolution."
-            action={<button type="button" className="btn btn--primary" onClick={() => setShowForm(true)}>Create ticket</button>}
-          />
-        ) : (
-          <div className="data-table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Title</th>
-                  <th>Category</th>
-                  <th>Priority</th>
-                  <th>Status</th>
-                  <th>Agent</th>
-                  <th>Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {myTickets.map((t) => (
-                  <tr key={t.id} onClick={() => openTicket(t)}>
-                    <td><strong>{t.ticketId}</strong></td>
-                    <td>{t.title}</td>
-                    <td>{t.category}</td>
-                    <td><StatusBadge priority={t.priority} /></td>
-                    <td><StatusBadge status={t.status} /></td>
-                    <td>{t.agentName || '—'}</td>
-                    <td className="meta-text">{formatDate(t.createdAt)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        <TicketDrawer
-          ticket={selectedTicket}
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          chatProps={{ authorType: 'employee', authorId: employeeId, authorName: employeeName || employeeId }}
-        />
       </div>
-    </PlatformProvider>
+
+      {error && <div className="sla-alert">{error}</div>}
+
+      <div className="toolbar">
+        <input
+          className="toolbar__search"
+          placeholder="Search tickets…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="filter-bar">
+          {['', ...['Open', 'In Progress', 'Resolved']].map((s) => (
+            <FilterChip
+              key={s || 'all'}
+              label={s || 'All statuses'}
+              active={filterStatus === s}
+              onClick={() => setFilterStatus(s)}
+              onClear={s ? () => setFilterStatus('') : undefined}
+            />
+          ))}
+        </div>
+      </div>
+
+      {showForm && (
+        <div className="surface-card" style={{ marginBottom: 24 }}>
+          <h3 style={{ marginBottom: 16 }}>New ticket</h3>
+          <form onSubmit={handleSubmitTicket}>
+            <label className="label">Title</label>
+            <input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Brief summary" required />
+            <label className="label" style={{ marginTop: 12 }}>Description</label>
+            <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Describe the issue…" rows={3} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+              <div>
+                <label className="label">Category</label>
+                <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
+                  {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="label">Priority</label>
+                <select value={form.priority} onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))}>
+                  {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+              <button type="submit" className="btn btn--primary" disabled={submitting}>{submitting ? 'Submitting…' : 'Submit ticket'}</button>
+              <button type="button" className="btn btn--ghost" onClick={() => setShowForm(false)}>Cancel</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {loading ? (
+        <TableSkeleton rows={6} cols={6} />
+      ) : myTickets.length === 0 ? (
+        <EmptyState
+          title="No tickets yet"
+          description="Create your first support request and track it through resolution."
+          action={<button type="button" className="btn btn--primary" onClick={() => setShowForm(true)}>Create ticket</button>}
+        />
+      ) : (
+        <div className="data-table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Agent</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {myTickets.map((t) => (
+                <tr key={t.id} onClick={() => openTicket(t)}>
+                  <td><strong>{t.ticketId}</strong></td>
+                  <td>{t.title}</td>
+                  <td>{t.category}</td>
+                  <td><StatusBadge priority={t.priority} /></td>
+                  <td><StatusBadge status={t.status} /></td>
+                  <td>{t.agentName || '—'}</td>
+                  <td className="meta-text">{formatDate(t.createdAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <TicketDrawer
+        ticket={selectedTicket}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        chatProps={{ authorType: 'employee', authorId: employeeId, authorName: employeeName || employeeId }}
+      />
+    </div>
   )
 }

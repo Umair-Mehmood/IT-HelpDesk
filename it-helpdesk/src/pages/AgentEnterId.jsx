@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { getAgents } from '../api/helpdeskApi'
 
+import { saveAgentSession } from '../utils/sessionStorage'
+
 export default function AgentEnterId() {
   const [id, setId] = useState('')
   const [error, setError] = useState('')
@@ -21,7 +23,9 @@ export default function AgentEnterId() {
       const agents = await getAgents()
       const agent = agents.find((a) => (a.agentId || '').toUpperCase() === raw)
       if (agent) {
-        navigate('/agent/dashboard', { state: { agent } })
+        const session = { agent }
+        saveAgentSession(session)
+        navigate('/agent/dashboard', { state: session })
         return
       }
       setError('Agent ID not found. Try AGT-001, AGT-002, AGT-003, or AGT-004.')

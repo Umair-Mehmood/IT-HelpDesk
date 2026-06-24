@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { getEmployees, getTickets } from '../api/helpdeskApi'
 
+import { saveEmployeeSession } from '../utils/sessionStorage'
+
 export default function EmployeeEnterId() {
   const [id, setId] = useState('')
   const [error, setError] = useState('')
@@ -21,11 +23,15 @@ export default function EmployeeEnterId() {
       const [employees, tickets] = await Promise.all([getEmployees(), getTickets()])
       const emp = employees.find((e) => (e.employeeId || '').toUpperCase() === raw)
       if (emp) {
-        navigate('/employee/dashboard', { state: { employee: emp } })
+        const session = { employee: emp }
+        saveEmployeeSession(session)
+        navigate('/employee/dashboard', { state: session })
         return
       }
       const fromTicket = (tickets || []).find((t) => (t.employeeId || '').toUpperCase() === raw)
-      navigate('/employee/dashboard', { state: { employeeId: raw, employeeName: fromTicket?.employeeName || raw } })
+      const session = { employeeId: raw, employeeName: fromTicket?.employeeName || raw }
+      saveEmployeeSession(session)
+      navigate('/employee/dashboard', { state: session })
     } catch (err) {
       setError(err.message || 'Failed to load employees')
     } finally {
