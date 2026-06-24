@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { getTicketComments, postTicketComment } from '../api/helpdeskApi'
 import { formatDate } from '../utils/dateUtils'
 
-export default function TicketChat({ ticket, authorType, authorId, authorName }) {
-  const [open, setOpen] = useState(false)
+export default function TicketChat({ ticket, authorType, authorId, authorName, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen)
   const [comments, setComments] = useState([])
   const [loading, setLoading] = useState(false)
   const [sending, setSending] = useState(false)

@@ -2,15 +2,6 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { getAgents } from '../api/helpdeskApi'
 
-function AgentIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
-      <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
-    </svg>
-  )
-}
-
 export default function AgentEnterId() {
   const [id, setId] = useState('')
   const [error, setError] = useState('')
@@ -33,7 +24,7 @@ export default function AgentEnterId() {
         navigate('/agent/dashboard', { state: { agent } })
         return
       }
-      setError('Agent ID not found. Use e.g. AGT-001, AGT-002, AGT-003.')
+      setError('Agent ID not found. Try AGT-001, AGT-002, AGT-003, or AGT-004.')
     } catch (err) {
       setError(err.message || 'Failed to load agents')
     } finally {
@@ -42,29 +33,19 @@ export default function AgentEnterId() {
   }
 
   return (
-    <div className="portal-page">
-      <div className="portal-card">
-        <Link to="/" className="portal-breadcrumb">← Back to Home</Link>
-        <div className="portal-icon-wrap agent">
-          <AgentIcon />
+    <div className="auth-page">
+      <div className="auth-card">
+        <Link to="/" className="auth-back">← Back to home</Link>
+        <div className="auth-card__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
         </div>
-        <h1 className="portal-title">Agent Portal</h1>
-        <p className="portal-subtitle">Enter your Agent ID to access your assigned tickets and update their status.</p>
+        <h1>Agent sign in</h1>
+        <p className="auth-card__sub">Enter your Agent ID to access your assigned ticket queue.</p>
         <form onSubmit={handleSubmit}>
           <label className="label" htmlFor="agent-id">Agent ID</label>
-          <input
-            id="agent-id"
-            type="text"
-            placeholder="e.g. AGT-001"
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-            autoFocus
-            disabled={loading}
-          />
-          {error && <p className="portal-error">{error}</p>}
-          <button type="submit" className="primary" disabled={loading}>
-            {loading ? 'Loading…' : 'Continue'}
-          </button>
+          <input id="agent-id" type="text" placeholder="e.g. AGT-001" value={id} onChange={(e) => setId(e.target.value)} autoFocus disabled={loading} />
+          {error && <p className="auth-error">{error}</p>}
+          <button type="submit" className="btn btn--primary" disabled={loading}>{loading ? 'Signing in…' : 'Continue'}</button>
         </form>
       </div>
     </div>

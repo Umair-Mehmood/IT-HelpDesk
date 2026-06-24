@@ -1,13 +1,18 @@
-import { useState, useEffect } from 'react'
-import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect, useMemo } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getTickets, getAgents, createTicket } from '../api/helpdeskApi'
 import { formatDate } from '../utils/dateUtils'
 import { CATEGORIES, PRIORITIES } from '../config'
-import TicketChat from '../components/TicketChat'
+import { PlatformProvider } from '../context/PlatformContext'
+import { useToast } from '../context/ToastContext'
+import { StatusBadge, EmptyState, TableSkeleton, FilterChip } from '../components/ui/Primitives'
+import TicketDrawer from '../components/saas/TicketDrawer'
 
 export default function EmployeeDashboard() {
   const { state } = useLocation()
   const navigate = useNavigate()
+  const { toast } = useToast()
+  const { confirm } = useConfirm()
   const employee = state?.employee
   const employeeId = (state?.employeeId || employee?.employeeId || '').trim()
   const employeeName = (state?.employeeName || employee?.name || '').trim()
@@ -17,9 +22,12 @@ export default function EmployeeDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
-  const [submitSuccess, setSubmitSuccess] = useState('')
   const [form, setForm] = useState({ title: '', description: '', category: 'Software', priority: 'Medium' })
   const [submitting, setSubmitting] = useState(false)
+  const [search, setSearch] = useState('')
+  const [filterStatus, setFilterStatus] = useState('')
+  const [selectedTicket, setSelectedTicket] = useState(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
     if (!employeeId) {
@@ -44,126 +52,171 @@ export default function EmployeeDashboard() {
     return () => { cancelled = true }
   }, [employeeId, navigate])
 
-  const myTickets = (tickets || []).filter((t) => (t.employeeId || '').toUpperCase() === employeeId.toUpperCase()).sort((a, b) => (b.id || 0) - (a.id || 0))
+  const myTickets = useMemo(() =>
+    (tickets || [])
+      .filter((t) => (t.employeeId || '').toUpperCase() === employeeId.toUpperCase())
+      .filter((t) => !filterStatus || t.status === filterStatus)
+      .filter((t) => !search || `${t.ticketId} ${t.title} ${t.category}`.toLowerCase().includes(search.toLowerCase()))
+      .sort((a, b) => (b.id || 0) - (a.id || 0)),
+    [tickets, employeeId, filterStatus, search]
+  )
+
+  const searchItems = myTickets.map((t) => ({
+    id: t.id,
+    label: `${t.ticketId} — ${t.title}`,
+    meta: t.status,
+    ticket: t,
+  }))
 
   async function handleSubmitTicket(e) {
     e.preventDefault()
     if (!form.title?.trim()) return
     setSubmitting(true)
-    setSubmitSuccess('')
     try {
-      await createTicket(
-        {
-          employeeId,
-          employeeName: employeeName || employeeId,
-          title: form.title.trim(),
-          description: (form.description || '').trim(),
-          category: form.category,
-          priority: form.priority,
-        },
+      const created = await createTicket(
+        { employeeId, employeeName: employeeName || employeeId, title: form.title.trim(), description: (form.description || '').trim(), category: form.category, priority: form.priority },
         tickets,
         agents
       )
-      setSubmitSuccess('Ticket submitted. Refreshing list…')
-      setForm({ title: '', description: '', category: 'Software', priority: 'Medium' })
-      setShowForm(false)
       const [t] = await Promise.all([getTickets()])
       setTickets(t || [])
-      setSubmitSuccess('Ticket submitted successfully.')
+      setForm({ title: '', description: '', category: 'Software', priority: 'Medium' })
+      setShowForm(false)
+      toast(`Ticket ${created?.ticketId || ''} created`)
     } catch (err) {
-      setSubmitSuccess('')
       setError(err.message || 'Failed to submit ticket')
+      toast(err.message || 'Failed to submit ticket', 'error')
     } finally {
       setSubmitting(false)
     }
   }
 
+  function openTicket(t) {
+    setSelectedTicket(t)
+    setDrawerOpen(true)
+  }
+
   if (!employeeId) return null
 
+  const platformValue = {
+    role: 'employee',
+    user: { name: employeeName || employeeId, id: employeeId },
+    breadcrumbs: [{ label: 'DeskFlow', to: '/' }, { label: 'My Tickets' }],
+    searchItems,
+    onSearchSelect: (item) => openTicket(item.ticket),
+  }
+
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f2f5', padding: '1.5rem' }}>
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
-        <Link to="/" style={{ display: 'inline-block', marginBottom: '1rem', fontSize: '0.9rem' }}>← Home</Link>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+    <PlatformProvider value={platformValue}>
+      <div>
+        <div className="page-header">
           <div>
-            <h1 style={{ margin: 0 }}>My Tickets</h1>
-            <p style={{ color: 'var(--muted)', margin: '0.25rem 0 0' }}>{employeeName || employeeId}</p>
+            <h1>My Tickets</h1>
+            <p className="page-header__sub">{employeeName || employeeId}</p>
           </div>
-          <button type="button" className="primary" onClick={() => setShowForm(true)}>New Ticket</button>
+          <div className="page-actions">
+            <button type="button" className="btn btn--primary" onClick={() => setShowForm(true)}>+ New Ticket</button>
+          </div>
         </div>
 
-        {error && <p style={{ color: 'var(--danger)', marginBottom: '1rem' }}>{error}</p>}
-        {submitSuccess && <p style={{ color: 'var(--success)', marginBottom: '1rem' }}>{submitSuccess}</p>}
+        {error && <div className="sla-alert">{error}</div>}
+
+        <div className="toolbar">
+          <input
+            className="toolbar__search"
+            placeholder="Search tickets…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <div className="filter-bar">
+            {['', ...['Open', 'In Progress', 'Resolved']].map((s) => (
+              <FilterChip
+                key={s || 'all'}
+                label={s || 'All statuses'}
+                active={filterStatus === s}
+                onClick={() => setFilterStatus(s)}
+                onClear={s ? () => setFilterStatus('') : undefined}
+              />
+            ))}
+          </div>
+        </div>
 
         {showForm && (
-          <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ marginTop: 0 }}>Submit new ticket</h3>
+          <div className="surface-card" style={{ marginBottom: 24 }}>
+            <h3 style={{ marginBottom: 16 }}>New ticket</h3>
             <form onSubmit={handleSubmitTicket}>
               <label className="label">Title</label>
-              <input
-                value={form.title}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                placeholder="Brief summary"
-                required
-              />
-              <label className="label" style={{ marginTop: '0.75rem' }}>Description</label>
-              <textarea
-                value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                placeholder="Details..."
-                rows={3}
-              />
-              <label className="label" style={{ marginTop: '0.75rem' }}>Category</label>
-              <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
-                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <label className="label" style={{ marginTop: '0.75rem' }}>Priority</label>
-              <select value={form.priority} onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))}>
-                {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
-              </select>
-              <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-                <button type="submit" className="primary" disabled={submitting}>{submitting ? 'Submitting…' : 'Submit'}</button>
-                <button type="button" className="secondary" onClick={() => setShowForm(false)}>Cancel</button>
+              <input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Brief summary" required />
+              <label className="label" style={{ marginTop: 12 }}>Description</label>
+              <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Describe the issue…" rows={3} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+                <div>
+                  <label className="label">Category</label>
+                  <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
+                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Priority</label>
+                  <select value={form.priority} onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))}>
+                    {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+                <button type="submit" className="btn btn--primary" disabled={submitting}>{submitting ? 'Submitting…' : 'Submit ticket'}</button>
+                <button type="button" className="btn btn--ghost" onClick={() => setShowForm(false)}>Cancel</button>
               </div>
             </form>
           </div>
         )}
 
         {loading ? (
-          <p>Loading tickets…</p>
+          <TableSkeleton rows={6} cols={6} />
         ) : myTickets.length === 0 ? (
-          <div className="card">
-            <p style={{ color: 'var(--muted)', margin: 0 }}>You have no tickets yet. Click “New Ticket” to create one.</p>
-          </div>
+          <EmptyState
+            title="No tickets yet"
+            description="Create your first support request and track it through resolution."
+            action={<button type="button" className="btn btn--primary" onClick={() => setShowForm(true)}>Create ticket</button>}
+          />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {myTickets.map((t) => (
-              <div key={t.id || t.ticketId} className="card" style={{ padding: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <div>
-                    <strong>{t.ticketId}</strong> — {t.title}
-                    <div style={{ fontSize: '0.875rem', color: 'var(--muted)', marginTop: 0.25 }}>
-                      {t.category} · {t.priority} · Assigned to {t.agentName || '—'}
-                    </div>
-                  </div>
-                  <span className={`badge ${(t.status || '').toLowerCase().replace(/\s+/g, '-')}`}>{t.status}</span>
-                </div>
-                {t.description && <p style={{ fontSize: '0.9rem', margin: '0.5rem 0 0', color: '#4b5563' }}>{t.description}</p>}
-                <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0.5rem 0 0' }}>
-                  Created {formatDate(t.createdAt)}
-                  {t.resolvedAt && ` · Resolved ${formatDate(t.resolvedAt)}`}
-                </p>
-                <TicketChat
-                  ticket={t}
-                  authorType="employee"
-                  authorId={employeeId}
-                  authorName={employeeName || employeeId}
-                />
-              </div>
-            ))}
+          <div className="data-table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Agent</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myTickets.map((t) => (
+                  <tr key={t.id} onClick={() => openTicket(t)}>
+                    <td><strong>{t.ticketId}</strong></td>
+                    <td>{t.title}</td>
+                    <td>{t.category}</td>
+                    <td><StatusBadge priority={t.priority} /></td>
+                    <td><StatusBadge status={t.status} /></td>
+                    <td>{t.agentName || '—'}</td>
+                    <td className="meta-text">{formatDate(t.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
+
+        <TicketDrawer
+          ticket={selectedTicket}
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          chatProps={{ authorType: 'employee', authorId: employeeId, authorName: employeeName || employeeId }}
+        />
       </div>
-    </div>
+    </PlatformProvider>
   )
 }

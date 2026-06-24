@@ -5,74 +5,60 @@ const sections = [
   {
     title: 'Employee',
     to: '/employee',
-    color: '#2563eb',
     whatToEnter: 'Employee ID',
-    example: 'e.g. ID EMP-002',
+    example: 'e.g. EMP-001',
     steps: [
-      'Go to Home and click the Employee card.',
-      'Enter your Employee ID in the input field.',
-      'Click Continue to open your dashboard.',
-      'From your dashboard you can view all your tickets and submit new ones with New Ticket.',
+      'From Home, select the Employee portal.',
+      'Enter your Employee ID and continue.',
+      'View tickets in the data table and click any row to open details.',
+      'Use + New Ticket to submit a request and chat with your assigned agent.',
     ],
   },
   {
     title: 'Agent',
     to: '/agent',
-    color: '#059669',
     whatToEnter: 'Agent ID',
-    example: 'e.g. AGT-001, AGT-002, AGT-003',
+    example: 'e.g. AGT-001',
     steps: [
-      'Go to Home and click the Agent card.',
-      'Enter your Agent ID in the input field.',
-      'Click Continue to see tickets assigned to you.',
-      'Update status, add resolution notes, and mark tickets as Resolved when done.',
+      'From Home, select the Agent portal.',
+      'Enter your Agent ID to open your queue.',
+      'Filter by status, search tickets, and open the slide-over drawer to update.',
+      'Resolve tickets with a confirmation modal; employees are notified via the conversation thread.',
     ],
   },
   {
     title: 'Admin',
     to: '/admin',
-    color: '#7c3aed',
     whatToEnter: 'Passcode',
     example: ADMIN_PASSCODE,
     steps: [
-      'Go to Home and click the Admin card.',
-      'Enter the admin passcode.',
-      'Click Enter to open the full admin dashboard.',
-      'View summary cards (Open, In Progress, Resolved Today, SLA Breached), filter tickets, reassign or change priority, and see agent workload stats.',
+      'From Home, select the Admin portal.',
+      'Enter the admin passcode to access Operations Overview.',
+      'Monitor KPIs, SLA breaches, ticket volume chart, and agent workload.',
+      'Reassign tickets, change priority, and bulk-select rows for review.',
     ],
   },
 ]
 
 export default function HowToUsePage() {
   return (
-    <div className="about-page how-to-use-page">
-      <div className="about-hero">
-        <h1>How to Use</h1>
-        <p className="about-tagline">Access the app as an Employee, Agent, or Admin.</p>
-      </div>
+    <div style={{ padding: '48px 32px', maxWidth: 800, margin: '0 auto' }}>
+      <h1 style={{ color: '#fff', marginBottom: 8 }}>How to Use</h1>
+      <p style={{ color: '#94A3B8', marginBottom: 32 }}>Access DeskFlow as an Employee, Agent, or Admin.</p>
 
       {sections.map((s) => (
-        <section key={s.title} className="about-section">
-          <h2>{s.title}</h2>
-          <div className="about-card how-to-use-card" style={{ '--role-accent': s.color }}>
-            <div className="how-to-use-entry">
-              <span className="how-to-use-label">What to enter:</span>
-              <strong>{s.whatToEnter}</strong>
-              <span className="how-to-use-example">{s.example}</span>
-            </div>
-            <ol className="how-to-use-steps">
-              {s.steps.map((step, i) => (
-                <li key={i}>{step}</li>
-              ))}
-            </ol>
-            <Link to={s.to} className="role-link">Go to {s.title} portal →</Link>
-          </div>
-        </section>
+        <div key={s.title} className="surface-card" style={{ marginBottom: 16 }}>
+          <h4 className="section-label">{s.title}</h4>
+          <p style={{ marginBottom: 12 }}>
+            <strong>{s.whatToEnter}</strong>
+            <span className="meta-text" style={{ marginLeft: 8 }}>{s.example}</span>
+          </p>
+          <ol style={{ margin: '0 0 16px 20px', padding: 0, lineHeight: 1.7, color: '#334155' }}>
+            {s.steps.map((step, i) => <li key={i}>{step}</li>)}
+          </ol>
+          <Link to={s.to} className="btn btn--primary btn--sm">Open {s.title} portal</Link>
+        </div>
       ))}
-
-      <div className="about-cta">
-        <Link to="/" className="cta-button">Back to Home</Link>
-      </div>
     </div>
   )
 }

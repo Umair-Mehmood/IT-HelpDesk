@@ -2,15 +2,6 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { getEmployees, getTickets } from '../api/helpdeskApi'
 
-function EmployeeIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  )
-}
-
 export default function EmployeeEnterId() {
   const [id, setId] = useState('')
   const [error, setError] = useState('')
@@ -34,8 +25,7 @@ export default function EmployeeEnterId() {
         return
       }
       const fromTicket = (tickets || []).find((t) => (t.employeeId || '').toUpperCase() === raw)
-      const name = fromTicket?.employeeName || raw
-      navigate('/employee/dashboard', { state: { employeeId: raw, employeeName: name } })
+      navigate('/employee/dashboard', { state: { employeeId: raw, employeeName: fromTicket?.employeeName || raw } })
     } catch (err) {
       setError(err.message || 'Failed to load employees')
     } finally {
@@ -44,29 +34,19 @@ export default function EmployeeEnterId() {
   }
 
   return (
-    <div className="portal-page">
-      <div className="portal-card">
-        <Link to="/" className="portal-breadcrumb">← Back to Home</Link>
-        <div className="portal-icon-wrap employee">
-          <EmployeeIcon />
+    <div className="auth-page">
+      <div className="auth-card">
+        <Link to="/" className="auth-back">← Back to home</Link>
+        <div className="auth-card__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" /></svg>
         </div>
-        <h1 className="portal-title">Employee Portal</h1>
-        <p className="portal-subtitle">Enter your Employee ID to view your tickets and submit new requests.</p>
+        <h1>Employee sign in</h1>
+        <p className="auth-card__sub">Enter your Employee ID to access your tickets and submit requests.</p>
         <form onSubmit={handleSubmit}>
           <label className="label" htmlFor="emp-id">Employee ID</label>
-          <input
-            id="emp-id"
-            type="text"
-            placeholder="e.g. ID EMP-002"
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-            autoFocus
-            disabled={loading}
-          />
-          {error && <p className="portal-error">{error}</p>}
-          <button type="submit" className="primary" disabled={loading}>
-            {loading ? 'Loading…' : 'Continue'}
-          </button>
+          <input id="emp-id" type="text" placeholder="e.g. EMP-001" value={id} onChange={(e) => setId(e.target.value)} autoFocus disabled={loading} />
+          {error && <p className="auth-error">{error}</p>}
+          <button type="submit" className="btn btn--primary" disabled={loading}>{loading ? 'Signing in…' : 'Continue'}</button>
         </form>
       </div>
     </div>
