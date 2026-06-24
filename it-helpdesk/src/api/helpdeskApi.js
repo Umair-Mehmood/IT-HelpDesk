@@ -3,8 +3,8 @@ import { nowExcelSerial } from '../utils/dateUtils'
 
 async function get(url) {
   const res = await fetch(url)
-  if (!res.ok) throw new Error(`API error: ${res.status}`)
-  const json = await res.json()
+  const json = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(json.error || `API error: ${res.status}`)
   if (json.error) throw new Error(json.error)
   return json.data ?? json
 }
