@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { getEmployees, getTickets } from '../api/sheetNinja'
+import { getEmployees, getTickets } from '../api/helpdeskApi'
 
 function EmployeeIcon() {
   return (

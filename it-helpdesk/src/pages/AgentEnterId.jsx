@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { getAgents } from '../api/sheetNinja'
+import { getAgents } from '../api/helpdeskApi'
 
 function AgentIcon() {
   return (

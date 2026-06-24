@@ -7,7 +7,7 @@ import {
   getSlaRules,
   getResolutionHours,
   updateTicket,
-} from '../api/sheetNinja'
+} from '../api/helpdeskApi'
 import { formatDate, isResolvedToday, excelSerialToDate, nowExcelSerial } from '../utils/dateUtils'
 import { STATUSES, PRIORITIES } from '../config'
 

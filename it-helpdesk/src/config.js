@@ -1,4 +1,4 @@
-const API_BASE = 'https://api.sheetninja.io/0915742efd9b4baf8059e40b3f66b885/itHelpDeskDatabase'
+const API_BASE = import.meta.env.VITE_API_BASE || '/api'
 
 export const ENDPOINTS = {
   tickets: `${API_BASE}/tickets`,

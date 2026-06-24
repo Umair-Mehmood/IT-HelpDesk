@@ -5,6 +5,7 @@ async function get(url) {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`API error: ${res.status}`)
   const json = await res.json()
+  if (json.error) throw new Error(json.error)
   return json.data ?? json
 }
 
@@ -59,7 +60,7 @@ export function nextTicketId(tickets) {
   return `TKT-${String(max + 1).padStart(3, '0')}`
 }
 
-/** Create ticket: POST to Sheet Ninja. Assigns agent from category + workload. */
+/** Create ticket via Hostinger API. Assigns agent from category + workload. */
 export async function createTicket(payload, tickets, agents) {
   const now = nowExcelSerial()
   const ticketId = nextTicketId(tickets)
@@ -87,10 +88,11 @@ export async function createTicket(payload, tickets, agents) {
     body: JSON.stringify(body),
   })
   if (!res.ok) {
-    const t = await res.text()
-    throw new Error(t || `Create failed: ${res.status}`)
+    const json = await res.json().catch(() => ({}))
+    throw new Error(json.error || `Create failed: ${res.status}`)
   }
-  return res.json()
+  const json = await res.json()
+  return json.data ?? json
 }
 
 /** Update ticket: PATCH by row id */
@@ -102,8 +104,9 @@ export async function updateTicket(rowId, updates) {
     body: JSON.stringify(updates),
   })
   if (!res.ok) {
-    const t = await res.text()
-    throw new Error(t || `Update failed: ${res.status}`)
+    const json = await res.json().catch(() => ({}))
+    throw new Error(json.error || `Update failed: ${res.status}`)
   }
-  return res.json()
+  const json = await res.json()
+  return json.data ?? json
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { getTickets, getAgents, updateTicket } from '../api/sheetNinja'
+import { getTickets, getAgents, updateTicket } from '../api/helpdeskApi'
 import { formatDate, nowExcelSerial } from '../utils/dateUtils'
 import { STATUSES, PRIORITIES } from '../config'
 
