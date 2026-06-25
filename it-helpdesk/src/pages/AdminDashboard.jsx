@@ -14,8 +14,9 @@ import { useToast } from '../context/ToastContext'
 import { StatusBadge, KpiCard, TableSkeleton, FilterChip, EmptyState } from '../components/ui/Primitives'
 import TicketDrawer from '../components/saas/TicketDrawer'
 
+const BAR_MAX_HEIGHT = 100
+
 function ticketVolumeByDay(tickets) {
-  const CHART_BAR_AREA_HEIGHT = 140
   const days = []
   for (let i = 6; i >= 0; i--) {
     const d = new Date()
@@ -31,8 +32,7 @@ function ticketVolumeByDay(tickets) {
   const max = Math.max(...days.map((d) => d.count), 1)
   return days.map((d) => ({
     ...d,
-    pct: (d.count / max) * 100,
-    barHeightPx: `${Math.max(4, (d.count / max) * CHART_BAR_AREA_HEIGHT)}px`,
+    barHeightPx: `${Math.max(4, Math.round((d.count / max) * BAR_MAX_HEIGHT))}px`,
   }))
 }
 
@@ -210,23 +210,21 @@ export default function AdminDashboard() {
           <div className="col-3"><KpiCard label="SLA Breached" value={slaBreachedCount} variant="danger" /></div>
         </div>
 
-        <div className="dashboard-grid" style={{ marginBottom: 24 }}>
-          <div className="col-8 chart-col">
-            <div className="chart-card chart-card--equal">
+        <div className="dashboard-grid dashboard-overview-row" style={{ marginBottom: 24 }}>
+          <div className="col-8">
+            <div className="chart-card chart-card--compact">
               <h4 className="section-label">Ticket volume — last 7 days</h4>
               <div className="chart-panel">
                 <div className="chart-bars">
                   {chartData.map((d) => (
                     <div key={d.label} className="chart-bar-wrap">
                       <div className="chart-bar-column">
-                        <div className="chart-bar-stack">
-                          <span className="chart-bar-value">{d.count}</span>
-                          <div
-                            className="chart-bar"
-                            style={{ height: d.barHeightPx }}
-                            data-tooltip={`${d.count} ticket${d.count !== 1 ? 's' : ''} · ${d.label}`}
-                          />
-                        </div>
+                        <span className="chart-bar-value">{d.count}</span>
+                        <div
+                          className="chart-bar"
+                          style={{ height: d.barHeightPx }}
+                          data-tooltip={`${d.count} ticket${d.count !== 1 ? 's' : ''} · ${d.label}`}
+                        />
                       </div>
                     </div>
                   ))}
@@ -239,8 +237,8 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
-          <div className="col-4 chart-col">
-            <div className="chart-card chart-card--equal">
+          <div className="col-4">
+            <div className="chart-card chart-card--compact">
               <h4 className="section-label">Recent activity</h4>
               <ul className="activity-feed">
                 {recentActivity.map((t) => {
@@ -253,8 +251,9 @@ export default function AdminDashboard() {
                         <strong>{t.ticketId}</strong> — {t.status}
                         <span className="activity-feed__meta">
                           {agentLabel ? `Assigned to ${agentLabel}` : 'Unassigned'}
+                          {' · '}
+                          <span className="activity-feed__time">{formatDate(t.updatedAt)}</span>
                         </span>
-                        <span className="activity-feed__time">{formatDate(t.updatedAt)}</span>
                       </div>
                     </li>
                   )

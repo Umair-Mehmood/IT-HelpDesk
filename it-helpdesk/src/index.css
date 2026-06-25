@@ -638,25 +638,24 @@ input:focus, select:focus, textarea:focus {
   padding: var(--sp-6);
   box-shadow: var(--shadow-sm);
 }
-.chart-col { display: flex; min-height: 0; }
-.chart-card--equal {
+.dashboard-overview-row { align-items: stretch; }
+.dashboard-overview-row > [class*="col-"] { display: flex; }
+.dashboard-overview-row .chart-card--compact {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+  height: auto;
+  padding: var(--sp-4) var(--sp-5);
 }
-.chart-panel { margin-top: var(--sp-4); flex: 1; display: flex; flex-direction: column; }
+.chart-panel { margin-top: var(--sp-3); }
 .chart-bars {
   display: flex;
-  align-items: stretch;
+  align-items: flex-end;
   gap: var(--sp-2);
-  height: 140px;
-  flex-shrink: 0;
+  height: 116px;
 }
 .chart-bar-wrap {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   min-width: 0;
   height: 100%;
 }
@@ -666,12 +665,6 @@ input:focus, select:focus, textarea:focus {
   align-items: center;
   justify-content: flex-end;
   height: 100%;
-}
-.chart-bar-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
   width: 100%;
   max-width: 40px;
 }
@@ -680,6 +673,7 @@ input:focus, select:focus, textarea:focus {
   font-weight: 600;
   color: var(--slate-500);
   line-height: 1;
+  margin-bottom: 4px;
   flex-shrink: 0;
 }
 .chart-bar {
@@ -713,7 +707,7 @@ input:focus, select:focus, textarea:focus {
 .chart-bar-labels {
   display: flex;
   gap: var(--sp-2);
-  margin-top: var(--sp-2);
+  margin-top: var(--sp-1);
 }
 .chart-bar-labels .chart-bar-label {
   flex: 1;
@@ -724,7 +718,10 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* Activity feed */
-.activity-feed { list-style: none; margin: 0; padding: 0; flex: 1; }
+.activity-feed { list-style: none; margin: 0; padding: 0; }
+.dashboard-overview-row .activity-feed li {
+  padding: 7px 0;
+}
 .activity-feed li {
   display: flex;
   gap: var(--sp-3);
@@ -735,7 +732,7 @@ input:focus, select:focus, textarea:focus {
 .activity-feed li:last-child { border-bottom: none; }
 .activity-feed__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 6px; flex-shrink: 0; }
 .activity-feed__meta { font-size: 12px; color: var(--slate-500); display: block; margin-top: 2px; }
-.activity-feed__time { font-size: 12px; color: var(--slate-400); display: block; margin-top: 2px; }
+.activity-feed__time { color: var(--slate-400); }
 
 /* SLA warning */
 .sla-alert {
