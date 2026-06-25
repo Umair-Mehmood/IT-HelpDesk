@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 const features = [
@@ -71,16 +72,6 @@ const features = [
     desc: 'Four-tier priority system — Low, Medium, High, Critical. Colour-coded badges throughout the UI ensure the most urgent tickets are impossible to miss.',
     tags: ['4-tier system', 'Colour badges', 'SLA-linked'],
   },
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-    ),
-    title: 'Google Sheets Backend',
-    desc: 'All data lives in your own Google Sheet — no database setup, no hosting costs, no vendor lock-in. Audit every change directly in your spreadsheet at any time.',
-    tags: ['No database', 'Full audit trail', 'You own the data'],
-  },
 ]
 
 const portals = [
@@ -90,6 +81,15 @@ const portals = [
 ]
 
 export default function FeaturesPage() {
+  const gridRef = useRef(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 120)
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
     <div className="fp-page">
 
@@ -107,7 +107,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Feature grid */}
-      <section className="fp-grid-section">
+      <section className="fp-grid-section" ref={gridRef}>
         <div className="fp-grid">
           {features.map((f) => (
             <div key={f.title} className="fp-card">

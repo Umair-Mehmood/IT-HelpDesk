@@ -195,7 +195,7 @@ export default function HomePage() {
             ))}
           </div>
           <div className="hp-highlights__cta">
-            <Link to="/features" className="btn btn--primary">View all 8 features</Link>
+            <Link to="/features" className="btn btn--primary">View all features</Link>
           </div>
         </div>
       </section>
