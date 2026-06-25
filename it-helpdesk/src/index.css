@@ -638,12 +638,20 @@ input:focus, select:focus, textarea:focus {
   padding: var(--sp-6);
   box-shadow: var(--shadow-sm);
 }
-.chart-panel { margin-top: var(--sp-4); }
+.chart-col { display: flex; min-height: 0; }
+.chart-card--equal {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.chart-panel { margin-top: var(--sp-4); flex: 1; display: flex; flex-direction: column; }
 .chart-bars {
   display: flex;
   align-items: stretch;
   gap: var(--sp-2);
   height: 140px;
+  flex-shrink: 0;
 }
 .chart-bar-wrap {
   flex: 1;
@@ -656,8 +664,16 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   height: 100%;
-  gap: var(--sp-1);
+}
+.chart-bar-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 40px;
 }
 .chart-bar-value {
   font-size: 11px;
@@ -665,15 +681,6 @@ input:focus, select:focus, textarea:focus {
   color: var(--slate-500);
   line-height: 1;
   flex-shrink: 0;
-}
-.chart-bar-track {
-  flex: 1;
-  width: 100%;
-  max-width: 40px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  min-height: 0;
 }
 .chart-bar {
   position: relative;
@@ -717,7 +724,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* Activity feed */
-.activity-feed { list-style: none; margin: 0; padding: 0; }
+.activity-feed { list-style: none; margin: 0; padding: 0; flex: 1; }
 .activity-feed li {
   display: flex;
   gap: var(--sp-3);
