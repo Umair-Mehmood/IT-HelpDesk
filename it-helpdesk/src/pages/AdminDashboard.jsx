@@ -139,7 +139,7 @@ export default function AdminDashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [editForm, setEditForm] = useState({ status: '', priority: '', agentId: '', agentName: '' })
   const [saving, setSaving] = useState(false)
-  const [chartRange, setChartRange] = useState(7)
+  const [chartRange, setChartRange] = useState(30)
 
   useEffect(() => {
     let cancelled = false
