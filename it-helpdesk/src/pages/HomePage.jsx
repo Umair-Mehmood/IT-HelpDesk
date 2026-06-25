@@ -116,39 +116,64 @@ export default function HomePage() {
 
       {/* ── Hero ── */}
       <section className="hp-hero">
-        <div className="hp-hero__left">
-          <span className="hp-eyebrow">Enterprise IT Service Management</span>
-          <h1 className="hp-headline">
-            IT support your<br />
-            <span className="hp-headline--gradient">whole team</span><br />
-            can rely on
-          </h1>
-          <p className="hp-sub">
-            DeskFlow unifies ticket intake, agent workflows, and real-time SLA tracking in one clean platform built for modern IT teams.
-          </p>
-          <div className="hp-ctas">
-            <Link to="/employee" className="btn btn--primary hp-btn--lg">Submit a ticket</Link>
-            <Link to="/features" className="hp-btn-ghost hp-btn--lg">See all features →</Link>
+        {/* Top row: headline + mock */}
+        <div className="hp-hero__top">
+          <div className="hp-hero__left">
+            <span className="hp-eyebrow">Enterprise IT Service Management</span>
+            <h1 className="hp-headline">
+              IT support your<br />
+              <span className="hp-headline--gradient">whole team</span><br />
+              can rely on
+            </h1>
+            <p className="hp-sub">
+              DeskFlow unifies ticket intake, agent workflows, and real-time SLA tracking in one clean platform built for modern IT teams.
+            </p>
+            <div className="hp-stats">
+              <div className="hp-stat">
+                <strong>3 portals</strong>
+                <span>Employee · Agent · Admin</span>
+              </div>
+              <div className="hp-stat-div" />
+              <div className="hp-stat">
+                <strong>Real-time SLA</strong>
+                <span>Breach detection &amp; alerts</span>
+              </div>
+              <div className="hp-stat-div" />
+              <div className="hp-stat">
+                <strong>Google Sheets</strong>
+                <span>Your data, your control</span>
+              </div>
+            </div>
           </div>
-          <div className="hp-stats">
-            <div className="hp-stat">
-              <strong>3 portals</strong>
-              <span>Employee · Agent · Admin</span>
-            </div>
-            <div className="hp-stat-div" />
-            <div className="hp-stat">
-              <strong>Real-time SLA</strong>
-              <span>Breach detection & alerts</span>
-            </div>
-            <div className="hp-stat-div" />
-            <div className="hp-stat">
-              <strong>Google Sheets</strong>
-              <span>Your data, your control</span>
-            </div>
+          <div className="hp-hero__right">
+            <MockDashboard />
           </div>
         </div>
-        <div className="hp-hero__right">
-          <MockDashboard />
+
+        {/* Portal cards inside the banner */}
+        <div className="hp-hero__portals">
+          <p className="hp-hero__portals-label">Choose your portal and jump straight in</p>
+          <div className="hp-hero__portals-grid">
+            {portals.map((p) => (
+              <Link
+                key={p.to}
+                to={p.to}
+                className="hp-portal-card"
+                style={{ '--pa': p.accent }}
+              >
+                <div className="hp-portal-card__icon" style={{ background: `${p.accent}22`, color: p.accent }}>
+                  {p.icon}
+                </div>
+                <div className="hp-portal-card__body">
+                  <strong>{p.title}</strong>
+                  <span>{p.desc}</span>
+                </div>
+                <svg className="hp-portal-card__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -171,36 +196,6 @@ export default function HomePage() {
           </div>
           <div className="hp-highlights__cta">
             <Link to="/features" className="btn btn--primary">View all 8 features</Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Portal cards ── */}
-      <section className="hp-portals">
-        <div className="hp-portals__inner">
-          <span className="hp-eyebrow">Get started</span>
-          <h2>Choose your portal</h2>
-          <p>Each role has its own tailored experience — pick yours and jump straight in.</p>
-          <div className="hp-portals__grid">
-            {portals.map((p) => (
-              <Link
-                key={p.to}
-                to={p.to}
-                className="hp-portal-card"
-                style={{ '--pa': p.accent }}
-              >
-                <div className="hp-portal-card__icon" style={{ background: `${p.accent}18`, color: p.accent }}>
-                  {p.icon}
-                </div>
-                <div className="hp-portal-card__body">
-                  <strong>{p.title}</strong>
-                  <span>{p.desc}</span>
-                </div>
-                <svg className="hp-portal-card__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-              </Link>
-            ))}
           </div>
         </div>
       </section>
