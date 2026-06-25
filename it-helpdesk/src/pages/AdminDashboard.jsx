@@ -14,8 +14,6 @@ import { useToast } from '../context/ToastContext'
 import { StatusBadge, KpiCard, TableSkeleton, FilterChip, EmptyState } from '../components/ui/Primitives'
 import TicketDrawer from '../components/saas/TicketDrawer'
 
-const BAR_MAX_HEIGHT = 100
-
 function ticketVolumeByDay(tickets) {
   const days = []
   for (let i = 6; i >= 0; i--) {
@@ -29,11 +27,34 @@ function ticketVolumeByDay(tickets) {
     }).length
     days.push({ label, count })
   }
-  const max = Math.max(...days.map((d) => d.count), 1)
-  return days.map((d) => ({
-    ...d,
-    barHeightPx: `${Math.max(4, Math.round((d.count / max) * BAR_MAX_HEIGHT))}px`,
-  }))
+  return days
+}
+
+function BarChart({ data }) {
+  const SLOT_W = 60
+  const BAR_W = 32
+  const BAR_MAX_H = 90
+  const TOP_PAD = 20
+  const BOTTOM_PAD = 24
+  const VB_W = data.length * SLOT_W
+  const VB_H = TOP_PAD + BAR_MAX_H + BOTTOM_PAD
+  const maxCount = Math.max(...data.map((d) => d.count), 1)
+  return (
+    <svg viewBox={`0 0 ${VB_W} ${VB_H}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+      {data.map((d, i) => {
+        const barH = Math.max(4, Math.round((d.count / maxCount) * BAR_MAX_H))
+        const barX = i * SLOT_W + (SLOT_W - BAR_W) / 2
+        const barY = TOP_PAD + (BAR_MAX_H - barH)
+        return (
+          <g key={d.label}>
+            <rect x={barX} y={barY} width={BAR_W} height={barH} rx={4} fill="var(--accent)" opacity={0.82} />
+            <text x={barX + BAR_W / 2} y={barY - 5} textAnchor="middle" fontSize={10} fontWeight="600" fill="#64748B">{d.count}</text>
+            <text x={i * SLOT_W + SLOT_W / 2} y={TOP_PAD + BAR_MAX_H + 16} textAnchor="middle" fontSize={10} fill="#94A3B8">{d.label}</text>
+          </g>
+        )
+      })}
+    </svg>
+  )
 }
 
 export default function AdminDashboard() {
@@ -214,27 +235,7 @@ export default function AdminDashboard() {
           <div className="col-8">
             <div className="chart-card chart-card--compact">
               <h4 className="section-label">Ticket volume — last 7 days</h4>
-              <div className="chart-panel">
-                <div className="chart-bars">
-                  {chartData.map((d) => (
-                    <div key={d.label} className="chart-bar-wrap">
-                      <div className="chart-bar-column">
-                        <span className="chart-bar-value">{d.count}</span>
-                        <div
-                          className="chart-bar"
-                          style={{ height: d.barHeightPx }}
-                          data-tooltip={`${d.count} ticket${d.count !== 1 ? 's' : ''} · ${d.label}`}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="chart-bar-labels">
-                  {chartData.map((d) => (
-                    <span key={d.label} className="chart-bar-label">{d.label}</span>
-                  ))}
-                </div>
-              </div>
+              <BarChart data={chartData} />
             </div>
           </div>
           <div className="col-4">
