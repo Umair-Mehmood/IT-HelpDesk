@@ -209,13 +209,28 @@ export default function AdminDashboard() {
           <div className="col-8">
             <div className="chart-card">
               <h4 className="section-label">Ticket volume — last 7 days</h4>
-              <div className="chart-bars">
-                {chartData.map((d) => (
-                  <div key={d.label} className="chart-bar-wrap">
-                    <div className="chart-bar" style={{ height: `${d.pct}%` }} title={`${d.count} tickets`} />
-                    <span className="chart-bar-label">{d.label}</span>
-                  </div>
-                ))}
+              <div className="chart-panel">
+                <div className="chart-bars">
+                  {chartData.map((d) => (
+                    <div key={d.label} className="chart-bar-wrap">
+                      <div className="chart-bar-column">
+                        <span className="chart-bar-value">{d.count}</span>
+                        <div className="chart-bar-track">
+                          <div
+                            className="chart-bar"
+                            style={{ height: `${d.pct}%` }}
+                            data-tooltip={`${d.count} ticket${d.count !== 1 ? 's' : ''} · ${d.label}`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="chart-bar-labels">
+                  {chartData.map((d) => (
+                    <span key={d.label} className="chart-bar-label">{d.label}</span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -223,15 +238,22 @@ export default function AdminDashboard() {
             <div className="chart-card" style={{ height: '100%' }}>
               <h4 className="section-label">Recent activity</h4>
               <ul className="activity-feed">
-                {recentActivity.map((t) => (
-                  <li key={t.id}>
-                    <span className="activity-feed__dot" />
-                    <div>
-                      <strong>{t.ticketId}</strong> — {t.status}
-                      <span className="activity-feed__time">{formatDate(t.updatedAt)}</span>
-                    </div>
-                  </li>
-                ))}
+                {recentActivity.map((t) => {
+                  const agentLabel = t.agentName
+                    || agents.find((a) => (a.agentId || '').toUpperCase() === (t.agentId || '').toUpperCase())?.name
+                  return (
+                    <li key={t.id}>
+                      <span className="activity-feed__dot" />
+                      <div>
+                        <strong>{t.ticketId}</strong> — {t.status}
+                        <span className="activity-feed__meta">
+                          {agentLabel ? `Assigned to ${agentLabel}` : 'Unassigned'}
+                        </span>
+                        <span className="activity-feed__time">{formatDate(t.updatedAt)}</span>
+                      </div>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           </div>
