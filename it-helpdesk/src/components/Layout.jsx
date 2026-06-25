@@ -21,6 +21,7 @@ function InstagramIcon() {
 
 const navLinks = [
   { to: '/', label: 'Home' },
+  { to: '/features', label: 'Features' },
   { to: '/how-to-use', label: 'How to Use' },
 ]
 
