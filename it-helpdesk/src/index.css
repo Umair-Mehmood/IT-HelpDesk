@@ -655,6 +655,35 @@ input:focus, select:focus, textarea:focus {
   overflow: hidden;
   padding: var(--sp-4) var(--sp-5);
 }
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+.chart-range-pills {
+  display: flex;
+  gap: 4px;
+}
+.chart-range-pill {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--slate-500);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.chart-range-pill:hover { background: var(--slate-100); color: var(--navy-800); }
+.chart-range-pill--active {
+  background: var(--accent-muted);
+  color: var(--accent);
+  border-color: transparent;
+  font-weight: 600;
+}
 
 /* Activity feed */
 .activity-feed-scroll {

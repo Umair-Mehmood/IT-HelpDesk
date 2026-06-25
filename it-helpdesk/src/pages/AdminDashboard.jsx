@@ -14,12 +14,18 @@ import { useToast } from '../context/ToastContext'
 import { StatusBadge, KpiCard, TableSkeleton, FilterChip, EmptyState } from '../components/ui/Primitives'
 import TicketDrawer from '../components/saas/TicketDrawer'
 
-function ticketVolumeByDay(tickets) {
+const CHART_RANGE_OPTIONS = [
+  { label: '7 days',  days: 7  },
+  { label: '14 days', days: 14 },
+  { label: '30 days', days: 30 },
+]
+
+function ticketVolumeByDay(tickets, numDays) {
   const days = []
-  for (let i = 6; i >= 0; i--) {
+  for (let i = numDays - 1; i >= 0; i--) {
     const d = new Date()
     d.setDate(d.getDate() - i)
-    const label = d.toLocaleDateString(undefined, { weekday: 'short' })
+    const label = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
     const count = tickets.filter((t) => {
       const created = excelSerialToDate(t.createdAt)
       if (!created) return false
@@ -31,25 +37,36 @@ function ticketVolumeByDay(tickets) {
 }
 
 function BarChart({ data }) {
-  const SLOT_W = 60
-  const BAR_W = 32
+  const SLOT_W = data.length <= 7 ? 60 : data.length <= 14 ? 36 : 20
+  const BAR_W = Math.max(6, SLOT_W - 8)
   const BAR_MAX_H = 90
   const TOP_PAD = 20
-  const BOTTOM_PAD = 24
+  const BOTTOM_PAD = 26
   const VB_W = data.length * SLOT_W
   const VB_H = TOP_PAD + BAR_MAX_H + BOTTOM_PAD
   const maxCount = Math.max(...data.map((d) => d.count), 1)
+
+  // For 30-day view, only label every ~5th tick to avoid crowding
+  const labelEvery = data.length <= 7 ? 1 : data.length <= 14 ? 2 : 5
+
   return (
     <svg viewBox={`0 0 ${VB_W} ${VB_H}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
       {data.map((d, i) => {
         const barH = Math.max(4, Math.round((d.count / maxCount) * BAR_MAX_H))
         const barX = i * SLOT_W + (SLOT_W - BAR_W) / 2
         const barY = TOP_PAD + (BAR_MAX_H - barH)
+        const showLabel = i % labelEvery === 0 || i === data.length - 1
         return (
-          <g key={d.label}>
-            <rect x={barX} y={barY} width={BAR_W} height={barH} rx={4} fill="var(--accent)" opacity={0.82} />
-            <text x={barX + BAR_W / 2} y={barY - 5} textAnchor="middle" fontSize={10} fontWeight="600" fill="#64748B">{d.count}</text>
-            <text x={i * SLOT_W + SLOT_W / 2} y={TOP_PAD + BAR_MAX_H + 16} textAnchor="middle" fontSize={10} fill="#94A3B8">{d.label}</text>
+          <g key={i}>
+            <rect x={barX} y={barY} width={BAR_W} height={barH} rx={3} fill="var(--accent)" opacity={0.82} />
+            <text x={barX + BAR_W / 2} y={barY - 5} textAnchor="middle" fontSize={9} fontWeight="600" fill="#64748B">
+              {d.count > 0 ? d.count : ''}
+            </text>
+            {showLabel && (
+              <text x={i * SLOT_W + SLOT_W / 2} y={TOP_PAD + BAR_MAX_H + 18} textAnchor="middle" fontSize={9} fill="#94A3B8">
+                {d.label}
+              </text>
+            )}
           </g>
         )
       })}
@@ -74,6 +91,7 @@ export default function AdminDashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [editForm, setEditForm] = useState({ status: '', priority: '', agentId: '', agentName: '' })
   const [saving, setSaving] = useState(false)
+  const [chartRange, setChartRange] = useState(7)
 
   useEffect(() => {
     let cancelled = false
@@ -108,7 +126,7 @@ export default function AdminDashboard() {
   const inProgressCount = tickets.filter((t) => t.status === 'In Progress').length
   const resolvedTodayCount = tickets.filter((t) => isResolvedToday(t.resolvedAt)).length
   const slaBreachedCount = breached.length
-  const chartData = ticketVolumeByDay(tickets)
+  const chartData = ticketVolumeByDay(tickets, chartRange)
 
   const filteredTickets = useMemo(() => tickets.filter((t) => {
     if (filterStatus && t.status !== filterStatus) return false
@@ -234,7 +252,21 @@ export default function AdminDashboard() {
         <div className="dashboard-grid dashboard-overview-row" style={{ marginBottom: 24 }}>
           <div className="col-8">
             <div className="chart-card chart-card--compact">
-              <h4 className="section-label">Ticket volume — last 7 days</h4>
+              <div className="chart-header">
+                <h4 className="section-label" style={{ margin: 0 }}>Ticket volume</h4>
+                <div className="chart-range-pills">
+                  {CHART_RANGE_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.days}
+                      type="button"
+                      className={`chart-range-pill${chartRange === opt.days ? ' chart-range-pill--active' : ''}`}
+                      onClick={() => setChartRange(opt.days)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <BarChart data={chartData} />
             </div>
           </div>
