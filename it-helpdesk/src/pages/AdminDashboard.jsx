@@ -242,25 +242,27 @@ export default function AdminDashboard() {
             <div className="chart-card chart-card--compact">
               <h4 className="section-label">Recent activity</h4>
               <div className="activity-feed-scroll">
-              <ul className="activity-feed">
                 {recentActivity.map((t) => {
                   const agentLabel = t.agentName
                     || agents.find((a) => (a.agentId || '').toUpperCase() === (t.agentId || '').toUpperCase())?.name
+                  const initials = agentLabel
+                    ? agentLabel.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+                    : '—'
+                  const statusKey = (t.status || '').toLowerCase().replace(/\s+/g, '-')
                   return (
-                    <li key={t.id}>
-                      <span className="activity-feed__dot" />
-                      <div>
-                        <strong>{t.ticketId}</strong> — {t.status}
-                        <span className="activity-feed__meta">
-                          {agentLabel ? `Assigned to ${agentLabel}` : 'Unassigned'}
-                          {' · '}
-                          <span className="activity-feed__time">{formatDate(t.updatedAt)}</span>
-                        </span>
+                    <div key={t.id} className="act-row">
+                      <div className={`act-avatar act-avatar--${statusKey}`}>{initials}</div>
+                      <div className="act-body">
+                        <div className="act-top">
+                          <span className="act-tid">{t.ticketId}</span>
+                          <span className={`act-status act-status--${statusKey}`}>{t.status}</span>
+                        </div>
+                        <div className="act-agent">{agentLabel || 'Unassigned'}</div>
+                        <div className="act-time">{formatDate(t.updatedAt)}</div>
                       </div>
-                    </li>
+                    </div>
                   )
                 })}
-              </ul>
               </div>
             </div>
           </div>
