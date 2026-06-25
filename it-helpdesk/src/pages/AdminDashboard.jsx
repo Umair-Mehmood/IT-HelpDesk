@@ -76,11 +76,11 @@ function BarChart({ data }) {
         return (
           <g key={f}>
             <line x1={Y_W} y1={y} x2={VB_W - R_PAD} y2={y}
-              stroke="rgba(255,255,255,0.07)" strokeWidth={1}
+              stroke="#E2E8F0" strokeWidth={1}
               strokeDasharray={f === 1.0 ? '0' : '3 3'} />
             {(f === 0.5 || f === 1.0) && (
               <text x={Y_W - 4} y={y + 3.5} textAnchor="end"
-                fontSize={8.5} fill="rgba(255,255,255,0.3)" fontFamily="system-ui,sans-serif">
+                fontSize={8.5} fill="#94A3B8" fontFamily="system-ui,sans-serif">
                 {val}
               </text>
             )}
@@ -90,7 +90,7 @@ function BarChart({ data }) {
 
       {/* Baseline */}
       <line x1={Y_W} y1={TOP_PAD + CHART_H} x2={VB_W - R_PAD} y2={TOP_PAD + CHART_H}
-        stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
+        stroke="#CBD5E1" strokeWidth={1} />
 
       {/* Bars */}
       {data.map((d, i) => {
@@ -105,13 +105,13 @@ function BarChart({ data }) {
             <rect x={barX} y={barY} width={BAR_W} height={barH} rx={3} fill="#3B82F6" />
             {d.count > 0 && (
               <text x={cx} y={barY - 4} textAnchor="middle"
-                fontSize={9} fontWeight="700" fill="rgba(255,255,255,0.85)" fontFamily="system-ui,sans-serif">
+                fontSize={9} fontWeight="700" fill="#475569" fontFamily="system-ui,sans-serif">
                 {d.count}
               </text>
             )}
             {showLbl && (
               <text x={cx} y={TOP_PAD + CHART_H + 14} textAnchor="middle"
-                fontSize={8.5} fill="rgba(255,255,255,0.4)" fontFamily="system-ui,sans-serif">
+                fontSize={8.5} fill="#94A3B8" fontFamily="system-ui,sans-serif">
                 {d.label}
               </text>
             )}
