@@ -15,10 +15,26 @@ import { StatusBadge, KpiCard, TableSkeleton, FilterChip, EmptyState } from '../
 import TicketDrawer from '../components/saas/TicketDrawer'
 
 const CHART_RANGE_OPTIONS = [
-  { label: '7 days',  days: 7  },
-  { label: '14 days', days: 14 },
-  { label: '30 days', days: 30 },
+  { label: '7d',  days: 7  },
+  { label: '14d', days: 14 },
+  { label: '30d', days: 30 },
 ]
+
+// Deterministic avatar colors — same name always gets same color
+const AVATAR_PALETTE = [
+  { bg: 'rgba(59,130,246,0.22)',  fg: '#93C5FD' },
+  { bg: 'rgba(168,85,247,0.22)',  fg: '#C4B5FD' },
+  { bg: 'rgba(34,197,94,0.22)',   fg: '#86EFAC' },
+  { bg: 'rgba(245,158,11,0.22)',  fg: '#FCD34D' },
+  { bg: 'rgba(239,68,68,0.22)',   fg: '#FCA5A5' },
+  { bg: 'rgba(20,184,166,0.22)',  fg: '#5EEAD4' },
+]
+function avatarColor(name) {
+  if (!name) return AVATAR_PALETTE[0]
+  let h = 0
+  for (const c of name) h = ((h << 5) - h + c.charCodeAt(0)) | 0
+  return AVATAR_PALETTE[Math.abs(h) % AVATAR_PALETTE.length]
+}
 
 function ticketVolumeByDay(tickets, numDays) {
   const days = []
@@ -37,71 +53,65 @@ function ticketVolumeByDay(tickets, numDays) {
 }
 
 function BarChart({ data }) {
-  const n = data.length
-  const SLOT_W   = n <= 7 ? 52 : n <= 14 ? 32 : 19
-  const BAR_W    = Math.max(8, Math.round(SLOT_W * 0.52))
-  const CHART_H  = 96
-  const TOP_PAD  = 20   // room for count labels above tallest bar
-  const BTM_PAD  = 26   // room for date labels + baseline
-  const L_PAD    = 6
-  const R_PAD    = 6
-  const VB_W     = L_PAD + n * SLOT_W + R_PAD
-  const VB_H     = TOP_PAD + CHART_H + BTM_PAD
-  const maxCount = Math.max(...data.map((d) => d.count), 1)
+  const n          = data.length
+  const Y_W        = 24  // left gutter for Y-axis labels
+  const SLOT_W     = n <= 7 ? 48 : n <= 14 ? 30 : 18
+  const BAR_W      = Math.max(8, Math.round(SLOT_W * 0.55))
+  const CHART_H    = 100
+  const TOP_PAD    = 14  // count label clearance
+  const BTM_PAD    = 20  // date label clearance
+  const R_PAD      = 6
+  const VB_W       = Y_W + n * SLOT_W + R_PAD
+  const VB_H       = TOP_PAD + CHART_H + BTM_PAD
+  const maxCount   = Math.max(...data.map((d) => d.count), 1)
   const labelEvery = n <= 7 ? 1 : n <= 14 ? 2 : 5
-
-  // Gentle gridlines at 25 %, 50 %, 75 %, 100 %
-  const gridFracs = [0.25, 0.5, 0.75, 1]
+  const gridFracs  = [0.25, 0.5, 0.75, 1.0]
 
   return (
-    <svg viewBox={`0 0 ${VB_W} ${VB_H}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
-      <defs>
-        <linearGradient id="bcGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#3B82F6" stopOpacity="1"   />
-          <stop offset="100%" stopColor="#93C5FD" stopOpacity="0.7" />
-        </linearGradient>
-        <linearGradient id="bcGradHov" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#2563EB" stopOpacity="1"   />
-          <stop offset="100%" stopColor="#60A5FA" stopOpacity="0.8" />
-        </linearGradient>
-      </defs>
-
-      {/* Gridlines */}
+    <svg viewBox={`0 0 ${VB_W} ${VB_H}`} style={{ width: '100%', height: 'auto', display: 'block', marginTop: 8 }}>
+      {/* Gridlines + Y-axis labels */}
       {gridFracs.map((f) => {
-        const y = TOP_PAD + CHART_H - Math.round(f * CHART_H)
+        const y   = TOP_PAD + CHART_H - Math.round(f * CHART_H)
+        const val = Math.round(f * maxCount)
         return (
-          <line key={f}
-            x1={L_PAD} y1={y} x2={VB_W - R_PAD} y2={y}
-            stroke="#E2E8F0" strokeWidth={0.8}
-            strokeDasharray={f === 1 ? '0' : '3 3'}
-          />
+          <g key={f}>
+            <line x1={Y_W} y1={y} x2={VB_W - R_PAD} y2={y}
+              stroke="rgba(255,255,255,0.07)" strokeWidth={1}
+              strokeDasharray={f === 1.0 ? '0' : '3 3'} />
+            {(f === 0.5 || f === 1.0) && (
+              <text x={Y_W - 4} y={y + 3.5} textAnchor="end"
+                fontSize={8.5} fill="rgba(255,255,255,0.3)" fontFamily="system-ui,sans-serif">
+                {val}
+              </text>
+            )}
+          </g>
         )
       })}
 
       {/* Baseline */}
-      <line x1={L_PAD} y1={TOP_PAD + CHART_H} x2={VB_W - R_PAD} y2={TOP_PAD + CHART_H}
-        stroke="#CBD5E1" strokeWidth={1} />
+      <line x1={Y_W} y1={TOP_PAD + CHART_H} x2={VB_W - R_PAD} y2={TOP_PAD + CHART_H}
+        stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
 
-      {/* Bars + labels */}
+      {/* Bars */}
       {data.map((d, i) => {
-        const barH   = Math.max(2, Math.round((d.count / maxCount) * CHART_H))
-        const barX   = L_PAD + i * SLOT_W + (SLOT_W - BAR_W) / 2
-        const barY   = TOP_PAD + CHART_H - barH
-        const cx     = L_PAD + i * SLOT_W + SLOT_W / 2
+        const barH    = Math.max(2, Math.round((d.count / maxCount) * CHART_H))
+        const barX    = Y_W + i * SLOT_W + (SLOT_W - BAR_W) / 2
+        const barY    = TOP_PAD + CHART_H - barH
+        const cx      = Y_W + i * SLOT_W + SLOT_W / 2
         const showLbl = i % labelEvery === 0 || i === n - 1
         return (
           <g key={i}>
             <title>{`${d.label}: ${d.count} ticket${d.count !== 1 ? 's' : ''}`}</title>
-            <rect x={barX} y={barY} width={BAR_W} height={barH} rx={3} fill="url(#bcGrad)" />
+            <rect x={barX} y={barY} width={BAR_W} height={barH} rx={3} fill="#3B82F6" />
             {d.count > 0 && (
               <text x={cx} y={barY - 4} textAnchor="middle"
-                fontSize={9} fontWeight="600" fill="#475569">
+                fontSize={9} fontWeight="700" fill="rgba(255,255,255,0.85)" fontFamily="system-ui,sans-serif">
                 {d.count}
               </text>
             )}
             {showLbl && (
-              <text x={cx} y={TOP_PAD + CHART_H + 16} textAnchor="middle"
-                fontSize={9} fill="#94A3B8">
+              <text x={cx} y={TOP_PAD + CHART_H + 14} textAnchor="middle"
+                fontSize={8.5} fill="rgba(255,255,255,0.4)" fontFamily="system-ui,sans-serif">
                 {d.label}
               </text>
             )}
@@ -317,11 +327,12 @@ export default function AdminDashboard() {
                     || agents.find((a) => (a.agentId || '').toUpperCase() === (t.agentId || '').toUpperCase())?.name
                   const initials = agentLabel
                     ? agentLabel.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
-                    : '—'
+                    : '??'
                   const statusKey = (t.status || '').toLowerCase().replace(/\s+/g, '-')
+                  const col = avatarColor(agentLabel)
                   return (
                     <div key={t.id} className="act-row">
-                      <div className={`act-avatar act-avatar--${statusKey}`}>{initials}</div>
+                      <div className="act-avatar" style={{ background: col.bg, color: col.fg }}>{initials}</div>
                       <div className="act-body">
                         <div className="act-line act-line--top">
                           <span className="act-tid">{t.ticketId}</span>
