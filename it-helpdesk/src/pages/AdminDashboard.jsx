@@ -37,33 +37,71 @@ function ticketVolumeByDay(tickets, numDays) {
 }
 
 function BarChart({ data }) {
-  const SLOT_W = data.length <= 7 ? 60 : data.length <= 14 ? 36 : 20
-  const BAR_W = Math.max(6, SLOT_W - 8)
-  const BAR_MAX_H = 90
-  const TOP_PAD = 20
-  const BOTTOM_PAD = 26
-  const VB_W = data.length * SLOT_W
-  const VB_H = TOP_PAD + BAR_MAX_H + BOTTOM_PAD
+  const n = data.length
+  const SLOT_W   = n <= 7 ? 52 : n <= 14 ? 32 : 19
+  const BAR_W    = Math.max(8, Math.round(SLOT_W * 0.52))
+  const CHART_H  = 96
+  const TOP_PAD  = 20   // room for count labels above tallest bar
+  const BTM_PAD  = 26   // room for date labels + baseline
+  const L_PAD    = 6
+  const R_PAD    = 6
+  const VB_W     = L_PAD + n * SLOT_W + R_PAD
+  const VB_H     = TOP_PAD + CHART_H + BTM_PAD
   const maxCount = Math.max(...data.map((d) => d.count), 1)
+  const labelEvery = n <= 7 ? 1 : n <= 14 ? 2 : 5
 
-  // For 30-day view, only label every ~5th tick to avoid crowding
-  const labelEvery = data.length <= 7 ? 1 : data.length <= 14 ? 2 : 5
+  // Gentle gridlines at 25 %, 50 %, 75 %, 100 %
+  const gridFracs = [0.25, 0.5, 0.75, 1]
 
   return (
     <svg viewBox={`0 0 ${VB_W} ${VB_H}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+      <defs>
+        <linearGradient id="bcGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="#3B82F6" stopOpacity="1"   />
+          <stop offset="100%" stopColor="#93C5FD" stopOpacity="0.7" />
+        </linearGradient>
+        <linearGradient id="bcGradHov" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="#2563EB" stopOpacity="1"   />
+          <stop offset="100%" stopColor="#60A5FA" stopOpacity="0.8" />
+        </linearGradient>
+      </defs>
+
+      {/* Gridlines */}
+      {gridFracs.map((f) => {
+        const y = TOP_PAD + CHART_H - Math.round(f * CHART_H)
+        return (
+          <line key={f}
+            x1={L_PAD} y1={y} x2={VB_W - R_PAD} y2={y}
+            stroke="#E2E8F0" strokeWidth={0.8}
+            strokeDasharray={f === 1 ? '0' : '3 3'}
+          />
+        )
+      })}
+
+      {/* Baseline */}
+      <line x1={L_PAD} y1={TOP_PAD + CHART_H} x2={VB_W - R_PAD} y2={TOP_PAD + CHART_H}
+        stroke="#CBD5E1" strokeWidth={1} />
+
+      {/* Bars + labels */}
       {data.map((d, i) => {
-        const barH = Math.max(4, Math.round((d.count / maxCount) * BAR_MAX_H))
-        const barX = i * SLOT_W + (SLOT_W - BAR_W) / 2
-        const barY = TOP_PAD + (BAR_MAX_H - barH)
-        const showLabel = i % labelEvery === 0 || i === data.length - 1
+        const barH   = Math.max(2, Math.round((d.count / maxCount) * CHART_H))
+        const barX   = L_PAD + i * SLOT_W + (SLOT_W - BAR_W) / 2
+        const barY   = TOP_PAD + CHART_H - barH
+        const cx     = L_PAD + i * SLOT_W + SLOT_W / 2
+        const showLbl = i % labelEvery === 0 || i === n - 1
         return (
           <g key={i}>
-            <rect x={barX} y={barY} width={BAR_W} height={barH} rx={3} fill="var(--accent)" opacity={0.82} />
-            <text x={barX + BAR_W / 2} y={barY - 5} textAnchor="middle" fontSize={9} fontWeight="600" fill="#64748B">
-              {d.count > 0 ? d.count : ''}
-            </text>
-            {showLabel && (
-              <text x={i * SLOT_W + SLOT_W / 2} y={TOP_PAD + BAR_MAX_H + 18} textAnchor="middle" fontSize={9} fill="#94A3B8">
+            <title>{`${d.label}: ${d.count} ticket${d.count !== 1 ? 's' : ''}`}</title>
+            <rect x={barX} y={barY} width={BAR_W} height={barH} rx={3} fill="url(#bcGrad)" />
+            {d.count > 0 && (
+              <text x={cx} y={barY - 4} textAnchor="middle"
+                fontSize={9} fontWeight="600" fill="#475569">
+                {d.count}
+              </text>
+            )}
+            {showLbl && (
+              <text x={cx} y={TOP_PAD + CHART_H + 16} textAnchor="middle"
+                fontSize={9} fill="#94A3B8">
                 {d.label}
               </text>
             )}
@@ -285,12 +323,14 @@ export default function AdminDashboard() {
                     <div key={t.id} className="act-row">
                       <div className={`act-avatar act-avatar--${statusKey}`}>{initials}</div>
                       <div className="act-body">
-                        <div className="act-top">
+                        <div className="act-line act-line--top">
                           <span className="act-tid">{t.ticketId}</span>
-                          <span className={`act-status act-status--${statusKey}`}>{t.status}</span>
+                          <span className={`act-pill act-pill--${statusKey}`}>{t.status}</span>
                         </div>
-                        <div className="act-agent">{agentLabel || 'Unassigned'}</div>
-                        <div className="act-time">{formatDate(t.updatedAt)}</div>
+                        <div className="act-line act-line--bot">
+                          <span className="act-agent">{agentLabel || 'Unassigned'}</span>
+                          <span className="act-time">{formatDate(t.updatedAt)}</span>
+                        </div>
                       </div>
                     </div>
                   )
