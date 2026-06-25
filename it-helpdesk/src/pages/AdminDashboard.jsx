@@ -99,7 +99,7 @@ export default function AdminDashboard() {
 
   const recentActivity = [...tickets]
     .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
-    .slice(0, 6)
+    .slice(0, 20)
 
   const agentStats = (agents || []).map((a) => {
     const myTickets = tickets.filter((t) => (t.agentId || '').toUpperCase() === (a.agentId || '').toUpperCase())
@@ -240,6 +240,7 @@ export default function AdminDashboard() {
           <div className="col-4">
             <div className="chart-card chart-card--compact">
               <h4 className="section-label">Recent activity</h4>
+              <div className="activity-feed-scroll">
               <ul className="activity-feed">
                 {recentActivity.map((t) => {
                   const agentLabel = t.agentName
@@ -259,6 +260,7 @@ export default function AdminDashboard() {
                   )
                 })}
               </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -288,7 +290,7 @@ export default function AdminDashboard() {
         {filteredTickets.length === 0 ? (
           <EmptyState title="No tickets match" description="Adjust your filters or search query." />
         ) : (
-          <div className="data-table-wrap" style={{ marginBottom: 32 }}>
+          <div className="data-table-wrap data-table-wrap--scroll" style={{ marginBottom: 32 }}>
             <table className="data-table">
               <thead>
                 <tr>
