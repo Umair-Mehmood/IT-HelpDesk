@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-const mainPrompt = `IT Helpdesk Tracker is a React app connected to Google Sheets via Sheet Ninja.
+const mainPrompt = `IT Helpdesk Tracker is a React app with a REST API backend.
 Each table has its own API endpoint:
 • Tickets
 • Employees
@@ -12,7 +12,7 @@ The Employees table stores EmployeeID, Name, Department, and Email.
 The Agents table stores AgentID, Name, Specialization, Email, and ActiveTickets.
 The SLA Rules table stores Priority and ResolutionHours.
 There are 3 portals — Employee, Agent, and Admin. Employees submit tickets, the system auto-assigns them to the right agent based on category and workload, agents update and resolve tickets, and the admin gets a full dashboard with filters, SLA breach alerts, and agent workload stats.
-All data is read from and written to Google Sheets in real time via Sheet Ninja's REST API.`
+All data is read from and written to the backend in real time via a REST API.`
 
 const employeeFlow = `The employee lands on the homepage and clicks the Employee card. They are taken to the Employee portal where they see a simple input field asking for their Employee ID. They type their ID (e.g. EMP-001) and hit Enter. The app fetches their profile and ticket history and loads their personal dashboard. From here they can see all their past tickets and their current statuses. They can also click New Ticket to open a form, fill in the details, and submit. After submitting they see a confirmation message and the new ticket appears in their list.`
 

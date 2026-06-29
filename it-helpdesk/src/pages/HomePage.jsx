@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 /* ── Mini mock dashboard rendered with HTML/CSS ── */
 function MockDashboard() {
@@ -111,6 +112,16 @@ const portals = [
 ]
 
 export default function HomePage() {
+  const { hash } = useLocation()
+
+  useEffect(() => {
+    if (hash === '#features') {
+      setTimeout(() => {
+        document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    }
+  }, [hash])
+
   return (
     <div className="hp-page">
 
@@ -140,8 +151,8 @@ export default function HomePage() {
               </div>
               <div className="hp-stat-div" />
               <div className="hp-stat">
-                <strong>Google Sheets</strong>
-                <span>Your data, your control</span>
+                <strong>Fast Setup</strong>
+                <span>Up and running in minutes</span>
               </div>
             </div>
           </div>
@@ -178,7 +189,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Feature highlights ── */}
-      <section className="hp-highlights">
+      <section id="features" className="hp-highlights">
         <div className="hp-highlights__inner">
           <div className="hp-highlights__head">
             <span className="hp-eyebrow hp-eyebrow--dark">Why DeskFlow</span>
@@ -193,9 +204,6 @@ export default function HomePage() {
                 <p>{h.desc}</p>
               </div>
             ))}
-          </div>
-          <div className="hp-highlights__cta">
-            <Link to="/features" className="btn btn--primary">View all features</Link>
           </div>
         </div>
       </section>

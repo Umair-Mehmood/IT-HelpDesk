@@ -1,4 +1,4 @@
-import { Link, useLocation, Outlet } from 'react-router-dom'
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'
 
 const LINKEDIN_URL = 'https://www.linkedin.com/in/umairbuildsai'
 const INSTAGRAM_URL = 'https://www.instagram.com/umairbuildsai'
@@ -21,12 +21,21 @@ function InstagramIcon() {
 
 const navLinks = [
   { to: '/', label: 'Home' },
-  { to: '/features', label: 'Features' },
   { to: '/how-to-use', label: 'How to Use' },
 ]
 
 export default function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
+
+  function handleFeaturesClick(e) {
+    e.preventDefault()
+    if (location.pathname === '/') {
+      document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      navigate('/#features')
+    }
+  }
 
   return (
     <div className="public-layout">
@@ -39,6 +48,7 @@ export default function Layout() {
           {navLinks.map(({ to, label }) => (
             <Link key={to} to={to} className={location.pathname === to ? 'active' : ''}>{label}</Link>
           ))}
+          <a href="/#features" onClick={handleFeaturesClick} className={location.hash === '#features' ? 'active' : ''}>Features</a>
         </nav>
       </header>
       <Outlet />

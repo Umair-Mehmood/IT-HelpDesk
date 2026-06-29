@@ -59,7 +59,7 @@ export default function SheetNinjaPage() {
     <div className="about-page sheet-ninja-page">
       <div className="about-hero">
         <h1>Data Dictionary</h1>
-        <p className="about-tagline">Column definitions for the Google Sheets tables that power this app via Sheet Ninja API.</p>
+        <p className="about-tagline">Column definitions for the data tables that power this app.</p>
       </div>
 
       {tables.map((table) => (

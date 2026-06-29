@@ -14,7 +14,6 @@ import AgentEnterId from './pages/AgentEnterId'
 import AgentDashboard from './pages/AgentDashboard'
 import AdminPasscode from './pages/AdminPasscode'
 import AdminDashboard from './pages/AdminDashboard'
-import FeaturesPage from './pages/FeaturesPage'
 
 export default function App() {
   return (
@@ -23,7 +22,6 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/features" element={<FeaturesPage />} />
             <Route path="/how-to-use" element={<HowToUsePage />} />
             <Route path="/workflow" element={<AboutPage />} />
             <Route path="/about" element={<Navigate to="/workflow" replace />} />

@@ -40,7 +40,7 @@ export default function AboutPage() {
           <p>
             This platform solves that by providing a <strong>centralized helpdesk</strong> where employees 
             submit tickets, agents manage and resolve them, and admins oversee workload and performance — 
-            all backed by a simple spreadsheet (Google Sheets) via Sheet Ninja, so no complex backend is required.
+            all backed by a fast and reliable backend, so no complex setup is required.
           </p>
         </div>
       </section>
