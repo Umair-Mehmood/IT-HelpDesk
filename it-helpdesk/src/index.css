@@ -1185,8 +1185,14 @@ input:focus, select:focus, textarea:focus {
 .hp-highlights__head p { font-size: 16px; color: var(--slate-500); max-width: 520px; margin: 0 auto; line-height: 1.7; }
 .hp-highlights__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+}
+@media (max-width: 900px) {
+  .hp-highlights__grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .hp-highlights__grid { grid-template-columns: 1fr; }
 }
 .hp-hl-card {
   padding: 28px 24px;

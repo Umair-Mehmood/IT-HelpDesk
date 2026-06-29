@@ -65,24 +65,39 @@ function MockDashboard() {
 /* ── Feature highlights strip ── */
 const highlights = [
   {
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-    title: 'SLA Monitoring',
-    desc: 'Live breach detection with instant alerts — never miss a deadline again.',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>,
+    title: 'Smart Ticket Management',
+    desc: 'Employees submit structured requests through a dedicated portal. Every ticket is automatically categorised, prioritised, and routed to the right agent — no manual triage required.',
   },
   {
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>,
-    title: 'Smart Routing',
-    desc: 'Auto-assign tickets to the right agent based on specialization and load.',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+    title: 'Real-time SLA Monitoring',
+    desc: 'Define SLA rules per priority level. DeskFlow tracks every open ticket against its deadline and surfaces breaches instantly — so nothing falls through the cracks.',
+  },
+  {
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
+    title: 'Multi-Portal Access',
+    desc: 'Three purpose-built portals — Employee, Agent, and Admin — each tailored to the exact information and actions that role needs. No clutter, no confusion.',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
-    title: 'Threaded Chat',
-    desc: 'Contextual messaging on every ticket. No email chains, no lost context.',
+    title: 'Built-in Conversations',
+    desc: 'Every ticket has a threaded message panel. Employees and agents communicate in context — no email chains, no lost history. Full conversation log, always attached to the ticket.',
+  },
+  {
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>,
+    title: 'Agent Workload Dashboard',
+    desc: 'Agents see only their own queue — filtered, sortable, and searchable. Clear workload metrics show active vs. resolved tickets, breach percentages, and average resolution time.',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
-    title: 'Admin Analytics',
-    desc: '30-day volume charts, KPI cards, and per-agent workload — all in one view.',
+    title: 'Operations Overview',
+    desc: 'Admins get a full command centre — KPI cards, a 30-day ticket volume chart, SLA breach alerts, per-agent workload grid, and complete ticket management with bulk actions.',
+  },
+  {
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+    title: 'Priority Classification',
+    desc: 'Four-tier priority system — Low, Medium, High, Critical. Colour-coded badges throughout the UI ensure the most urgent tickets are impossible to miss.',
   },
 ]
 
