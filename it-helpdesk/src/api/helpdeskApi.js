@@ -111,6 +111,46 @@ export async function updateTicket(rowId, updates) {
   return json.data ?? json
 }
 
+/** Generate next agent ID (e.g. AGT-005) from existing agents */
+export function nextAgentId(agents) {
+  const nums = (agents || [])
+    .map((a) => (a.agentId && a.agentId.replace(/^AGT-0*/, '')) || '0')
+    .map((n) => parseInt(n, 10))
+    .filter((n) => !Number.isNaN(n))
+  const max = nums.length ? Math.max(...nums) : 0
+  return `AGT-${String(max + 1).padStart(3, '0')}`
+}
+
+export async function createAgent(payload) {
+  const res = await fetch(ENDPOINTS.agents, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  const json = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(json.error || `Create failed: ${res.status}`)
+  return json.data ?? json
+}
+
+export async function updateAgent(rowId, updates) {
+  const res = await fetch(`${ENDPOINTS.agents}/${rowId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates),
+  })
+  const json = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(json.error || `Update failed: ${res.status}`)
+  return json.data ?? json
+}
+
+export async function deleteAgent(rowId) {
+  const res = await fetch(`${ENDPOINTS.agents}/${rowId}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}))
+    throw new Error(json.error || `Delete failed: ${res.status}`)
+  }
+}
+
 export async function getTicketComments(ticketRowId) {
   const res = await fetch(`${ENDPOINTS.tickets}/${ticketRowId}/comments`)
   if (!res.ok) throw new Error(`API error: ${res.status}`)

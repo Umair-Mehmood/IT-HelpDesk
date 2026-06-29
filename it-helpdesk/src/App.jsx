@@ -14,6 +14,7 @@ import AgentEnterId from './pages/AgentEnterId'
 import AgentDashboard from './pages/AgentDashboard'
 import AdminPasscode from './pages/AdminPasscode'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminAgents from './pages/AdminAgents'
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
             <Route path="/agent/dashboard" element={<AgentDashboard />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/agents" element={<AdminAgents />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
