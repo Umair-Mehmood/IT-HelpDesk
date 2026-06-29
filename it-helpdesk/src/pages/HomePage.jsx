@@ -66,38 +66,38 @@ function MockDashboard() {
 const highlights = [
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>,
-    title: 'Tickets that sort themselves',
-    desc: 'Staff fill in a simple form and the right agent gets it — automatically. No chasing, no guesswork, no one "just checking" whether their request was received.',
+    title: 'Submit once, routed instantly',
+    desc: 'Employees fill in a simple form and the right agent has it within seconds. DeskFlow handles the categorisation, prioritisation, and assignment automatically so your team can focus on solving, not sorting.',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
     title: 'SLAs you can actually trust',
-    desc: "Set a deadline per priority level and DeskFlow watches the clock for you. If something's about to breach, you'll know before it does — not after.",
-  },
-  {
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
-    title: 'A home for every role',
-    desc: "Employees, agents, and admins each get their own portal with only what they need. Nobody's wading through dashboards that weren't built for them.",
-  },
-  {
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
-    title: 'Chat that stays with the ticket',
-    desc: "Ask a question, get a reply, and it's all right there on the ticket — forever. No digging through email threads to remember what was said two weeks ago.",
-  },
-  {
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>,
-    title: 'Agents know exactly where to start',
-    desc: "Your team opens their queue and sees what matters most — sorted by priority, flagged for urgency. No confusion about what to work on next.",
-  },
-  {
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
-    title: 'The big picture, at a glance',
-    desc: "Admins get a live view of everything — open tickets, who's overloaded, what's breaching SLA, and how the team has been performing over the past 30 days.",
+    desc: 'Set resolution targets by priority level and let DeskFlow do the watching. You get a live breach alert before a deadline is missed, not an apology after.',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
-    title: 'Critical issues never get buried',
-    desc: 'Four priority levels — Low to Critical — with colour-coded badges that follow every ticket through the system. The urgent stuff always stands out.',
+    title: 'Four priority levels. Zero missed urgencies.',
+    desc: 'Low, Medium, High, Critical — colour-coded throughout the entire system. The moment a critical ticket lands, every person who needs to see it, does.',
+  },
+  {
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>,
+    title: 'Agents always know what is next',
+    desc: 'A focused, filterable queue sorted by priority. Your agents open DeskFlow and immediately know what to work on. No daily stand-ups needed to figure out who is doing what.',
+  },
+  {
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+    title: 'Conversations that stay on the ticket',
+    desc: 'Every ticket has its own message thread. Agents and employees communicate directly in context, so the full history is always there. No email forwarding, no lost replies.',
+  },
+  {
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+    title: 'Operations visibility for admins',
+    desc: 'One screen to see it all. Open tickets, SLA health, per-agent workload, and a 30-day volume trend. Make staffing and process decisions backed by real data.',
+  },
+  {
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
+    title: 'A portal built for every role',
+    desc: 'Employees track their requests. Agents manage their queue. Admins see everything. Each portal shows exactly what that person needs — nothing more, nothing less.',
   },
 ]
 
